@@ -1,0 +1,7 @@
+{
+  "name": "lidar-mcp",
+  "description": "MCP server for YDLIDAR USB LiDAR sensors (X2/X4/G1/G4/S series) — scan, stream, status",
+  "categories": ["hardware", "robotics", "sensors"],
+  "tools": ["lidar_scan", "show_lidar_health_card"],
+  "repository": "https://github.com/sandraschi/lidar-mcp"
+}

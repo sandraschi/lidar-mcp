@@ -1,0 +1,24 @@
+# lidar-mcp
+
+MCP server for YDLIDAR USB LiDAR sensors (X2, X4, G1, G4, S2, S4, S2B, S4B).
+
+## Links
+- [Source](https://github.com/sandraschi/lidar-mcp)
+- [Full docs](llms-full.txt)
+
+## Quick start
+1. Plug in YDLIDAR sensor, find port: `lidar_scan(operation="ports")`
+2. Set `LIDAR_PORT` env var to the detected port
+3. Run `lidar_scan(operation="scan")` for a single 360-degree sweep
+
+## Tools
+- `lidar_scan` — portmanteau with operations: status, scan, ports, stream_start, stream_stop
+- `show_lidar_health_card` — rich Prefab card with point cloud summary
+
+## Env vars
+- `LIDAR_PORT` — serial port (e.g. COM3, /dev/ttyUSB0)
+- `LIDAR_BAUD` — override baud rate (auto-detected if omitted)
+
+## Related fleet servers
+- [yahboom-mcp](https://github.com/sandraschi/yahboom-mcp) — obstacle avoidance using this LiDAR
+- [ros-mcp](https://github.com/sandraschi/ros-mcp) — ROS 2 bridge consuming scan data

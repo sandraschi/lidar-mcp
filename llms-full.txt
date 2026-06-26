@@ -1,0 +1,535 @@
+# lidar-mcp — Full Documentation
+
+## Overview
+
+MCP server for YDLIDAR USB 2D LiDAR sensors. Wraps the standard YDLIDAR SDK2
+serial protocol (used by X2, X4, G1, G4, S2, S4, S2B, S4B models) into MCP
+tools accessible from Claude, Cursor, or any MCP host.
+
+## Architecture
+
+```
+Agent → FastMCP (stdio/SSE) → ydlidar_driver.py → USB serial → YDLIDAR LiDAR
+```
+
+The driver is pure Python with `pyserial` — no C++ SDK, no compilation, no ROS.
+The YDLIDAR SDK2 protocol is a binary packet format that this server implements
+directly.
+
+## Tools
+
+### lidar_scan (portmanteau)
+
+| operation | Parameters | Description |
+|-----------|-----------|-------------|
+| ports | — | List serial ports, auto-detect LiDAR candidates |
+| status | port | Device info, firmware, health (temp, error codes) |
+| scan | port, timeout_s | Single 360-degree point cloud |
+
+### show_lidar_health_card
+
+Rich Prefab UI card with point count, valid/invalid ratio, range.
+
+## Configuration
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| LIDAR_PORT | — | Serial port (COM3, /dev/ttyUSB0). **Required.** |
+| LIDAR_BAUD | auto | Override baud rate. Auto-detected. |
+| MCP_PORT | — | SSE mode port (11074). Omit for stdio. |
+
+## Transports
+
+- **stdio**: `uv run python -m lidar_mcp.main`
+- **SSE**: `$env:MCP_PORT=11074; uv run python -m lidar_mcp.main`
+
+## Dependencies
+
+- Python 3.12+, fastmcp >= 3.4.2, pyserial >= 3.5, prefab-ui >= 0.14.0
+
+---
+
+# YDLIDAR — Technical Reference
+
+### Historical Context: The LiDAR Democratization Curve
+
+In 2010, a LiDAR was a SICK LMS291 ($8,000, shoebox-sized, 80 m range, serial)
+or a Velodyne HDL-32E ($40,000, 32-plane 3D, 100 m). These were instruments for
+autonomous vehicle research — you didn't buy one for a hobby robot.
+
+| Era | Device | Cost | Range | Dimensions |
+|-----|--------|------|-------|-----------|
+| 2000s | SICK LMS | $8,000 | 80 m | 155 x 185 x 160 mm |
+| 2010s | Velodyne Puck | $8,000 | 100 m | dia 103 x 72 mm |
+| 2015 | RPLIDAR A1 | $400 | 6 m | dia 98 x 50 mm |
+| 2018 | YDLIDAR X4 | $35 | 10 m | dia 96 x 42 mm |
+| 2026 | YDLIDAR G4 | $50 | 16 m | dia 96 x 42 mm |
+
+The YDLIDAR is 2D, 16 m max, plastic, uncalibrated, no IP rating. The
+SICK/Velodyne are 3D, 80-300 m, calibrated, IP67, heated optics. You're
+not replacing one with the other. But for $50 you can throw a LiDAR at any
+problem that doesn't need 3D -- obstacle detection on a desk robot, room
+cross-section mapping, IoT presence. The ratio that matters:
+
+- SICK LMS: $8,000 / (360 deg x 80 m) = **$0.28 per deg-m**
+- YDLIDAR G4: $50 / (360 deg x 16 m) = **$0.009 per deg-m**
+
+**30x cheaper per unit of sensing.** For stationary indoor robotics, the
+sensor now costs less than the mounting hardware.
+
+## Models
+
+| Model | Range | Baud | FPS | Connector | Application |
+|-------|-------|------|-----|-----------|-------------|
+| **X2** | 12 m | 115200 | 5–8 | USB (CP210x) | Budget indoor, robot obstacle avoidance |
+| **X4** | 10 m | 230400 | 5–8 | USB (CP210x) | Indoor mapping, TurtleBot |
+| **X4 Pro** | 12 m | 230400 | 8–10 | USB (CP210x) | Same as X4, improved optics |
+| **G1** | 12 m | 500000 | 8–12 | USB (CH340) | Compact, good value |
+| **G4** | 16 m | 500000 | 8–12 | USB (CH340) | Best mid-range, widely used |
+| **G6** | 25 m | 500000 | 8–12 | USB (CH340) | Long-range, outdoor capable |
+| **S2** | 12 m | 230400 | 8–12 | USB (CH340) | New-gen, plug-and-play |
+| **S4** | 16 m | 230400 | 8–12 | USB (CH340) | New-gen, S2's bigger brother |
+| **S2B** | 12 m | 230400 | 6–8 | USB (CH340) | Low-power (battery optimized) |
+| **S4B** | 16 m | 230400 | 6–8 | USB (CH340) | Low-power (battery optimized) |
+| **T1** | 40 m | 115200 | 5–8 | USB (CP210x) | Long-range, industrial PRR |
+
+**Recommendation**: G4 ($50–60 on AliExpress) or S2 ($30–40) for most use
+cases. X4 ($25–35) for absolute budget.
+
+## SDK2 Protocol
+
+The YDLIDAR SDK2 is the de-facto standard protocol for all current models.
+It runs over USB CDC ACM (virtual serial port) and uses a simple request-response
+packet format.
+
+### Packet Structure
+
+```
+Command (host→sensor):
+  [0xA5] [command_byte]
+
+Response descriptor (sensor→host):
+  [0xA5] [0x5A] [length_low] [length_high] [resp_type] [crc_low] [crc_high]
+
+Response data (sensor→host):
+  [data bytes ...] (length bytes)
+```
+
+### Commands
+
+| Byte | Command | Response type | Effect |
+|------|---------|---------------|--------|
+| 0xA0 | GET_INFO | 0x04 | Device info (model, firmware, serial) |
+| 0x90 | GET_HEALTH | 0x06 | Health (good/warning/error + error code) |
+| 0x60 | SCAN | 0x81 | Start sending scan data until STOP |
+| 0x65 | STOP | — | Stop any ongoing operation |
+| 0x61 | FORCE_SCAN | 0x81 | Same as SCAN, resets motor if stalled |
+
+### Scan Data Format
+
+Each scan point is 5 bytes in the response data stream:
+
+```
+[quality_byte] [angle_low] [angle_high] [dist_low] [dist_high]
+```
+
+| Field | Bytes | Format | Description |
+|-------|-------|--------|-------------|
+| quality | 1 | bit7 = sync flag, bit6-0 = quality (0–127) | 0 = invalid/noise |
+| angle | 2 | uint16 LE | angle_deg = raw / 64.0 |
+| distance | 2 | uint16 LE | distance_mm = raw / 4.0 |
+
+The sync flag (bit 7 of quality byte) is set on the first point of each
+new 360-degree rotation. A complete rotation typically contains 400–1000
+points depending on motor speed and baud rate.
+
+### CRC16
+
+CRC16-Modbus over all data bytes (excluding the 7-byte descriptor header).
+The lookup-table implementation is in `ydlidar_driver.py`.
+
+## Where to Buy
+
+| Model | Source | Price (2026) |
+|-------|--------|-------------|
+| X2, X4 | AliExpress, Amazon | $25–40 |
+| G4 | AliExpress, Amazon, Waveshare | $45–65 |
+| S2, S4 | AliExpress, Amazon, Waveshare | $30–50 |
+| G6 | AliExpress, Amazon | $80–100 |
+| All | eBay used | 30–50% off |
+
+Search "YDLIDAR X4" or "YDLIDAR G4" on AliExpress. Ships from China in
+2–4 weeks. Amazon has Prime-eligible stock at a ~$10 premium.
+
+### What's in the box
+
+- LiDAR module with integrated USB UART
+- USB-A to Micro-B cable (usually 30 cm)
+- Small screwdriver for optional RPM pot adjustment (X series only)
+- The sensor has a mounting bracket with M3 threaded holes
+
+## USB Interface
+
+| Feature | Detail |
+|---------|--------|
+| Connector | Micro-USB (USB 2.0) |
+| UART chip | CP2102N (X series), CH340 (G/S series) |
+| Driver | Built into Windows/macOS/Linux — no driver install needed |
+| USB class | CDC ACM (virtual serial port) |
+| Power draw | ~300–400 mA at 5V (motor + laser) |
+| USB cable recommendation | Shielded, max 2 m. Longer cables cause voltage drop and motor stall. |
+
+On Windows, the LiDAR appears as a COM port. On macOS, as /dev/tty.SLAB_USBtoUART
+or /dev/tty.usbserial-*. On Linux, as /dev/ttyUSB0 or /dev/ttyACM0.
+
+## Performance
+
+### Typical scan quality
+
+| Surface | Typical return | Notes |
+|---------|---------------|-------|
+| White wall @ 1 m | Quality 100–120, ±1 cm | Best case |
+| Dark carpet @ 3 m | Quality 40–70, ±3 cm | Reduced IR reflectivity |
+| Glass/window | Quality 0 (invalid) | IR passes through glass |
+| Mirror | Quality 0 (invalid) | Specular reflection misses receiver |
+| Black foam @ 5 m | Quality 10–30, ±5 cm | Near limit for dark surfaces |
+| Outdoor @ 10 m | Quality 20–50, ±3 cm | Ambient IR noise reduces range |
+
+The YDLIDAR uses 785 nm IR laser (Class 1 eye-safe). Outdoors, sunlight
+contains strong IR which reduces effective range.
+
+### Speed vs model
+
+| Model | Scan rate | Points per rev | Data rate |
+|-------|-----------|---------------|-----------|
+| X2 | 5–8 Hz | ~400 | ~6 KB/s |
+| X4 | 5–8 Hz | ~600 | ~9 KB/s |
+| G4 | 8–12 Hz | ~1000 | ~20 KB/s |
+| S2 | 8–12 Hz | ~800 | ~16 KB/s |
+
+### Range vs environment
+
+| Condition | X4 max | G4 max | G6 max |
+|-----------|--------|--------|--------|
+| Indoor, white wall | 10 m | 16 m | 25 m |
+| Indoor, dark furniture | 6 m | 10 m | 15 m |
+| Outdoor, overcast | 6 m | 10 m | 18 m |
+| Outdoor, bright sun | 3 m | 6 m | 10 m |
+
+## Calibration
+
+YDLIDAR sensors are calibrated at the factory. No user calibration is needed
+or supported. The distance accuracy is ±1–3 cm (1-sigma) across the full
+range. Angle accuracy is ±0.5 degrees.
+
+If scan data is consistently offset (all distances +X cm), the sensor may
+have been physically rotated in its mounting. Remount with the marker line
+pointing forward.
+
+## When to Use G4 vs S2
+
+| Factor | G4 | S2 |
+|--------|----|----|
+| Range | 16 m | 12 m |
+| Protocol | SDK2 (standard) | SDK2 (standard) |
+| USB chip | CH340 | CH340 |
+| Connector | Micro-USB | Micro-USB |
+| Price | $50–60 | $30–40 |
+| ROS support | Excellent | Excellent |
+| Recommended for | General robotics | Budget builds, learning |
+
+Both work identically with this MCP server. The G4's extra range and
+data rate matter for larger robots or outdoor use.
+
+## Use Cases
+
+### Robot Obstacle Avoidance (yahboom-mcp)
+
+A YDLIDAR on a Yahboom ROS robot provides 360-degree obstacle detection:
+
+```
+lidar_scan(operation="scan") → finds obstacle at 30 cm on port side
+→ yahboom_mcp adjusts motor speeds to avoid collision
+```
+
+### Indoor Mapping
+
+A single scan from a stationary LiDAR provides a 2D cross-section of a room.
+Multiple scans at different heights can infer furniture positions.
+
+### Port Detection and Status Monitoring
+
+The `ports` operation finds the LiDAR automatically. The `status` operation
+reports health and error codes — useful for robot pre-flight checks.
+
+### Multi-Sensor Fusion — DIY 3D LiDAR
+
+Two YDLIDARs at different heights can create a poor-man's 3D scanner.
+Run two MCP server instances with different LIDAR_PORT values, process
+point clouds in Claude.
+
+### PTZ-Mounted 3D Scanning (Yahboom Hack)
+
+A simpler 3D approach than buying a second sensor: **mount one YDLIDAR on a
+servo PTZ, rotated 90 degrees so the scan plane is vertical.**
+
+```
+Normal orientation:    ────── scan plane (horizontal)
+Rotated 90 degrees:    ││││││ scan plane (vertical fan)
+PTZ sweeps the fan:    ╱╱│││╲╲   → 3D point cloud
+```
+
+How it works:
+
+1. YDLIDAR is mounted sideways. Its 360-degree sweep now traces a **vertical
+   circle** — imagine a hula hoop standing on edge. This gives you distances
+   along a 360-degree *vertical* fan.
+2. The PTZ (pan servo) slowly rotates the whole assembly horizontally.
+   At each pan angle, the LiDAR captures one vertical fan slice.
+3. The agent correlates each fan with the pan angle at capture time, then
+   assembles the slices into a 3D point cloud.
+
+```
+ptz_set_angle(pan=0);   lidar_scan → vertical fan at 0 deg
+ptz_set_angle(pan=5);   lidar_scan → vertical fan at 5 deg
+ptz_set_angle(pan=10);  lidar_scan → vertical fan at 10 deg
+... 72 steps → full 180-degree 3D point cloud
+```
+
+**Result**: a 3D point cloud for the cost of a $35 LiDAR + a $15 servo PTZ.
+Frame rate is slow (~5 seconds per full sweep) but stationary scans produce
+usable 3D geometry.
+
+The Yahboom ROS robot's cam PTZ (2-DOF pan/tilt servos) is perfect for this.
+The pan servo does the horizontal sweep; the tilt servo could optionally
+offset the vertical scan plane to cover different elevation ranges.
+
+**Limitations**:
+- **Slow**: seconds per full sweep, not real-time
+- **PTZ backlash**: cheap servos have 0.5-2 deg repeatability error, which
+  adds noise to the point cloud
+- **No simultaneous capture**: the PTZ moves between scans, so moving
+  objects appear at wrong positions or streaked
+
+Still, for the $50 total parts cost, you get a 3D sensor that covers
+~180 deg horizontal x 180 deg vertical with fine angular resolution — the
+same principle Velodyne uses, just with one beam instead of 16-64.
+
+### Shoot-and-Scoot Room Scanning (Boomy + Multi-Pose Fusion)
+
+Mount the PTZ YDLIDAR on Boomy. Now the robot becomes a **mobile 3D scanner**
+that can cover an entire room by scanning from multiple positions:
+
+```
+Scan position 1:  doorway facing in     → 21,600 points @ pose {x=0, y=0, θ=0}
+Scan position 2:  2 m forward, 0.5 m R  → 21,600 points @ pose {x=2, y=0.5, θ=15}
+Scan position 3:  far corner             → 21,600 points @ pose {x=4.5, y=3.2, θ=90}
+...
+```
+
+The agent knows Boomy's odometry at each scan (from yahboom-mcp's wheel
+encoders). Each point from the PTZ sweep is transformed through two rotations:
+
+```
+1. Vertical fan → each point has (distance, fan_angle) in the PTZ frame
+2. PTZ pan angle → rotates the fan to the correct horizontal bearing
+3. Robot pose → translates and rotates the whole sweep to global coordinates
+```
+
+Stack all positions into one global point cloud. The overlap zones between
+positions fill in blind spots naturally — position 2 catches what position 1's
+rear-facing scan missed.
+
+**Sniper analogy**: You shoot one scan (90 ms fan capture, no recoil),
+relocate, shoot again from the next window ledge. By the time Boomy has
+circled the room, the agent has a 3D model that can segment:
+
+- "This horizontal cluster at 750 mm height is the coffee table"
+- "This vertical plane at x=4.2 m is the wall"
+- "This gap in the wall plane is the doorway"
+- "This L-shaped cluster behind the sofa is floor lamp + base"
+
+**Why this works**:
+- YDLIDAR captures at 5-12 Hz. A full PTZ sweep (72 steps × 5 deg) takes
+  ~5-10 seconds depending on servo speed. That's 1,800-4,000 scan points
+  per second.
+- Boomy's odometry has ±2 cm / ±2 deg accuracy over short distances
+  (under 5 m). Sweeps overlap by 30-50%, so scan registration (matching
+  overlapping wall segments between positions) self-corrects drift.
+- Room-scale scanning for $65 total parts cost (YDLIDAR + servo + mounting).
+  A Matterstation costs $3,500 and a Faro costs $25,000. Neither comes with
+  a sniper analogy.
+
+**The result is not survey-grade**. But it's good enough for: furniture
+layout export to IKEA Kreativ, insurance inventory ("list every object
+with size > 30 cm in my living room"), construction progress tracking
+("are the walls plumb?"), and digital twin of your apartment for agentic
+home automation.
+
+### lewm-mcp — The World Model Capstone
+
+[lewm-mcp](https://github.com/sandraschi/lewm-mcp) (ports 10927/10928) wraps
+LeWorldModel (JEPA) — a world model that learns spatial physics from video.
+Feed it the point cloud sequences from lidar-mcp, and it can:
+
+- **Complete occluded geometry**: "The sofa hides the wall behind it. Predict
+  the wall plane from the visible ceiling and floor lines."
+- **Detect physical anomalies**: "This cluster appeared at a position that
+  violates the room's learned occupancy prior — investigate."
+- **Predict short-term change**: "Over 3 scans, this coat on the hook swings
+  with decreasing amplitude. Model predicts it will stop in 12 seconds."
+- **Segment by dynamics**: "This cluster vibrates at 50 Hz — that's the
+  refrigerator compressor. This cluster is stationary — that's the cabinet."
+
+The pipeline:
+
+```
+lidar-mcp → raw 3D point cloud → agent formats as observation sequence
+                                  → lewm-mcp (train/eval) → spatial predictions
+                                  → back to agent for action
+```
+
+### The Real Advantage: LLM/LWM Reasoning, Not Hardware Precision
+
+A conventional robotics approach would compensate for the cheap hardware
+with better servos, calibration routines, and point cloud registration
+algorithms (ICP, NDT). That's the right call for autonomous navigation
+where failure means collision.
+
+For scanning a room? **The LLM is your registration algorithm.**
+
+| Problem | Conventional fix | LLM fix |
+|---------|-----------------|---------|
+| PTZ backlash ±1 deg | Buy $200 harmonic-drive servo | "These wall segments at position A and B overlap at 92 and 87 degrees. The wall is straight. The servo drifted. Corrected." |
+| Odometry drift ±5 cm | Visual SLAM (ORB-SLAM, DSO) | "Boomy's odometry says it moved 2.0 m, but the wall in both scans matches at an offset of 2.14 m. Correcting translation to 2.14 m." |
+| Missing geometry (object behind sofa) | Complete scanning path, more poses | "There's a gap behind the sofa that no scan reached. The room is rectangular based on the three visible walls. Estimating fourth wall at {x=5.2, y=...} with 85% confidence." |
+| Noisy single-point outliers | Statistical outlier removal filter | "This return at 8.3 m at angle 142 is a glass reflection (IR passes through glass). Discard. The wall actually starts at 5.1 m." |
+| Unknown object classification | Object detection ML model | "Cluster at {center=(2.1, 3.4), dimensions=(1.2, 0.45, 0.75)} with planar top surface at 750 mm. That's a desk." |
+
+An LLM knows the *prior probabilities of room geometry* — that walls are
+straight, doors are ~80 cm, tables are ~75 cm, chairs have four legs ~50 cm
+apart. It doesn't need a training dataset of your specific room to infer
+these. It already read 10 billion words describing rooms.
+
+**LeWM (LeWorldModel, JEPA)** takes this further: a world model trained
+on 3D scenes can complete the missing geometry from partial point clouds.
+It sees the three walls and the ceiling-floor extent and generates the
+probable location of the fourth wall — not by reasoning about English text,
+but because its latent space encodes the statistical regularity that rooms
+are convex polyhedra.
+
+The stack becomes:
+
+```
+$65 LiDAR + servo → noisy 21k-point cloud → LLM segments, corrects, labels
+                                          → LeWM completes missing geometry
+                                          → Rich 3D model with semantic labels
+```
+
+The hardware doesn't need to be survey-grade. The model is the survey.
+
+## Creative and Non-Robotics Applications
+
+The YDLIDAR is a 2D time-of-flight laser scanner. It sweeps a single IR
+beam 360 degrees and returns distance readings. That's a remarkably general
+sensor. Here are applications beyond robot obstacle avoidance:
+
+### For Visually Impaired People
+
+A YDLIDAR mounted on a belt, chest harness, or white cane provides a
+**horizontal 2D slice of the environment at that height**. An agent reads
+the point cloud and converts it to spatial audio or haptic feedback:
+
+```
+lidar_scan(operation="scan")
+→ AI interprets: "Obstacle at 2.3 m, 30 degrees left — a pole.
+  Clear path from 0 to 20 degrees. Wall at 5 m ahead."
+→ Output as stereo audio panning or belt vibration motors
+```
+
+**Current limitations** vs dedicated assistive tech (like the Ultracane or
+Sunu Band that use sonar):
+
+| Factor | YDLIDAR approach | Dedicated assistive devices |
+|--------|-----------------|-----------------------------|
+| Field of view | 360 degrees (full surround) | ~30-60 degrees (narrow beam) |
+| Range | 10-16 m | 4-5 m |
+| Axis | Single 2D plane | Sonar conic beam (3D volume) |
+| Drop-off detection | **No** — 2D plane misses stairs down | Sonar reflects from ground angle |
+| Overhead detection | **No** — scan plane is horizontal | Some devices tilt upward |
+| Weight | ~50 g (YDLIDAR X4) | ~30-50 g |
+| Cost | **$35** | $300-800 |
+
+The critical gap: a single horizontal 2D LiDAR **cannot see stairs down,
+curbs, or holes** — the scan passes right over them. A real assistive device
+needs either (a) a downward-tilted second sensor, (b) a 3D LiDAR, or (c)
+camera-based depth sensing. But for detection of **walls, poles, parked cars,
+furniture, and people at chest height**, a $35 YDLIDAR beats any sonar cane
+in range and field of view.
+
+The MCP angle matters: the point cloud goes to an LLM, not just a buzzer.
+An LLM can describe the scene in natural language ("a chair 1 m left, a
+wall 4 m ahead, a person walking toward you at 6 m") — richer than any
+existing assistive device.
+
+### For Dogs (and Other Animals)
+
+**Guide dogs don't need a LiDAR** — they have better sensors (eyes, ears,
+nose, whiskers) and four decades of breeding for spatial awareness. But
+a LiDAR on a harness could augment the *human's* awareness of the dog:
+
+- **Position tracking**: A downward-facing YDLIDAR on the ceiling tracks
+  the dog's 2D position in the room. The agent detects unusual patterns
+  (dog hasn't moved in 4 hours, circling behavior, avoiding a corner).
+- **Off-leash perimeter**: A stationary LiDAR at the property boundary
+  detects when the dog crosses into the street. Agent sends an SMS alert
+  via 4g-usb-phone-mcp.
+- **Kennel monitoring**: Scanning a kennel run detects if the dog is
+  standing, lying down, or pacing (by changes in the point cloud profile).
+- **Play behavior analysis**: A LiDAR above a play area tracks two dogs'
+  positions over time — the agent can quantify play styles (chase, wrestle,
+  parallel run) from trajectory data.
+
+### Other Applications
+
+| Domain | Use case | How | Why YDLIDAR works |
+|--------|----------|-----|-------------------|
+| **Healthcare** | Fall detection in elderly rooms | Ceiling-mounted, scans the floor plane. Stationary point cloud = baseline. New cluster near floor = fallen person. | No camera (privacy), works in darkness, 10 m covers a room |
+| **Retail** | Shelf stock monitoring | LiDAR on a gantry scans shelves. Missing products = gap in the return at that angle. | 16 m range covers an aisle |
+| **Agriculture** | Livestock position in barns | Overhead scan tracks animal distribution. Crowding in one corner = ventilation or temperature issue. | Dust-resistant, no camera (privacy for farmers who distrust cloud CCTV) |
+| **Museum security** | Art proximity alarm | Floor-level scan around a sculpture. If point cloud shows an object entering the exclusion zone, trigger audio alert. | Invisible beam, no trip hazard, adjustable zone via software |
+| **Construction** | Rebar / formwork alignment | LiDAR on a tripod scans a column formwork. Point cloud confirms verticality within ±1 cm. | Faster than a plumb line, logs digital record |
+| **Theatre** | Performer tracking for stage automation | Stage-level scan tracks actor position. Agent triggers lights/fog/projection as they cross thresholds. | Cheap enough to deploy 4 units around the stage, no camera (no privacy concern backstage) |
+| **Home automation** | Room-level presence detection | LiDAR in the hallway detects which room doors are open (by the return pattern change when door angle shifts). | Detects open/closed without sensors on every door |
+| **Parking** | Spot occupancy in a garage | Ceiling-mounted per parking spot. If return distance is shorter than empty-spot baseline, spot is occupied. | $50 per spot beats $300 ultrasonic sensors, works outdoors |
+| **Citizen science** | Bat flight corridor mapping | LiDAR aimed upward at a known flyway. Bat crosses beam → single return at unusual height + speed. | Continuous 24/7 operation, no IR glare (bats are IR-sensitive, YDLIDAR is 785 nm which they see dimly) |
+| **Wellness** | Posture / sit-stand tracking | Desk-side LiDAR at chair height. Scan shows whether you're leaning forward (bad) or sitting upright (good). Agent nags you. | No camera (privacy for WfH), works in low light |
+
+### What a 2D LiDAR Cannot Do
+
+Honest limitations of the YDLIDAR for assistive and creative use:
+
+| Cannot detect | Why | Workaround |
+|--------------|-----|-----------|
+| Stairs down, curbs, holes | Scan plane passes above them | Second sensor tilted down, or camera |
+| Overhead obstacles (tree branches, awnings) | Scan plane is below them | Second sensor tilted up, or camera |
+| Glass windows or doors | IR passes through glass | Ultrasonic sensor, or map known windows |
+| Black/dark surfaces beyond 3-5 m | Low IR reflectivity | Accept reduced range, or add reflective tape |
+| Small objects below scan plane (toys, pets at floor level) | Not intersected by the beam | Second scan at a lower height |
+| Color, texture, text | No camera — single wavelength IR | Camera (but then you lose privacy and darkness capability) |
+
+The key insight: a 2D LiDAR is a **complementary sensor**, not a replacement
+for vision or sonar. It excels at what cameras are bad at: darkness, privacy,
+360-degree awareness without moving parts, and machine-readable structured
+data (angles and distances, not pixels).
+
+## Related Fleet Servers
+
+See README.md for the full fleet ecosystem table.
+
+| Server | What it consumes from lidar-mcp |
+|--------|-------------------------------|
+| [yahboom-mcp](https://github.com/sandraschi/yahboom-mcp) | Scan data for obstacle avoidance |
+| [ros-mcp](https://github.com/sandraschi/ros-mcp) | Bridge scan data into ROS 2 /scan topics |
+| [lewm-mcp](https://github.com/sandraschi/lewm-mcp) | JEPA world model — completes geometry, detects anomalies, predicts dynamics |
+| 4g-usb-phone-mcp _(future)_ | Cellular connectivity for remote LiDAR deployments |
