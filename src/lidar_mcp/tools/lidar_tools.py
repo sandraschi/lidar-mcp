@@ -12,8 +12,6 @@ from lidar_mcp.ydlidar_driver import (
     list_ports,
     probe_port,
     scan_once,
-    stream_start,
-    stream_read_point,
     stream_stop,
 )
 
@@ -161,7 +159,6 @@ async def show_lidar_health_card(ctx: Context = None) -> Any:
 
             scan = scan_once(ser, timeout_s=2.0)
             valid = [p for p in scan.points if p.is_valid]
-            angles = [p.angle_deg for p in valid]
             dists = [p.distance_mm for p in valid]
             min_dist = min(dists) if dists else 0
             max_dist = max(dists) if dists else 0

@@ -2,7 +2,7 @@
 name = "lidar-mcp"
 version = "0.1.0"
 description = "MCP server for YDLIDAR USB LiDAR sensors (X2/X4/G1/G4/S series) — scan, stream, status"
-authors = [{ name = "Sandra Schipal", email = "sandra@example.com" }]
+authors = [{ name = "Sandra Schipal", email = "sandra@sandraschi.dev" }]
 requires-python = ">=3.12"
 dependencies = [
     "fastmcp>=3.4.2,<4",
@@ -11,7 +11,10 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = []
+dev = ["ruff>=0.15.0", "pytest>=8.0"]
+
+[project.scripts]
+lidar-mcp = "lidar_mcp.main:main"
 
 [build-system]
 requires = ["hatchling"]

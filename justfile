@@ -6,7 +6,7 @@ serve:
 
 # Run in HTTP/SSE mode on port 11074
 serve-http:
-    uv run python -m lidar_mcp.main
+    $env:MCP_PORT = "11074"; $env:MCP_HOST = "127.0.0.1"; uv run python -m lidar_mcp.main
 
 # Verify server imports and tool registration
 check:
@@ -19,3 +19,11 @@ lint:
 # Format
 fmt:
     uv run ruff format src/
+
+# Install dependencies
+install:
+    uv sync
+
+# Clean cache and artifacts
+clean:
+    Remove-Item -Recurse -Force __pycache__, .ruff_cache -ErrorAction SilentlyContinue

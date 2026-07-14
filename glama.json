@@ -1,7 +1,14 @@
 {
+  "$schema": "https://glama.ai/mcp/schemas/server.json",
   "name": "lidar-mcp",
   "description": "MCP server for YDLIDAR USB LiDAR sensors (X2/X4/G1/G4/S series) — scan, stream, status",
+  "type": "mcp_server",
+  "status": "beta",
+  "framework": "FastMCP 3.4+",
+  "tools": 2,
+  "version": "0.1.0",
+  "transport": ["stdio", "sse"],
   "categories": ["hardware", "robotics", "sensors"],
-  "tools": ["lidar_scan", "show_lidar_health_card"],
+  "keywords": ["lidar", "ydlidar", "sensor", "robotics", "slam", "scanning", "fastmcp"],
   "repository": "https://github.com/sandraschi/lidar-mcp"
 }

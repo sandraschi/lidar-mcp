@@ -180,7 +180,7 @@ def probe_port(port: str, baud: int = BAUD_X4) -> dict[str, Any]:
                             "error_code": health.error_code,
                         },
                     }
-                except ConnectionError as e:
+                except ConnectionError:
                     continue
         except serial.SerialException as e:
             return {

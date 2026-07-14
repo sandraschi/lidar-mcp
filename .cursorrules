@@ -1,0 +1,15 @@
+# lidar-mcp — Cursor Rules
+
+## Commands
+```powershell
+uv run python -m lidar_mcp.main          # Start server
+uv run ruff check src/                   # Lint
+```
+
+## Architecture
+FastMCP 3.4+ server wrapping YDLIDAR serial protocol driver.
+
+## Code Standards
+- Ruff Python linting (line length 120)
+- READ_ONLY annotation on all tools
+- No bare `except: pass`
