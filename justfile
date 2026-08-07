@@ -1,3 +1,5 @@
+set windows-shell := ["powershell.exe", "-NoProfile", "-Command"]
+
 default: serve
 
 # Run in stdio mode (Claude Desktop)
@@ -27,3 +29,9 @@ install:
 # Clean cache and artifacts
 clean:
     Remove-Item -Recurse -Force __pycache__, .ruff_cache -ErrorAction SilentlyContinue
+
+# Bootstrap: install dev deps + pre-commit hook
+bootstrap:
+    uv sync --group dev
+    uv run pre-commit install
+    Write-Host "Pre-commit hooks installed." -ForegroundColor Green
