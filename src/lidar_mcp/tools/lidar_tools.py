@@ -1,7 +1,9 @@
-"""YDLIDAR LiDAR tools — portmanteau pattern."""
+"""YDLIDAR LiDAR tools - portmanteau pattern."""
 
 from __future__ import annotations
 
+import asyncio
+import logging
 import os
 from typing import Any
 
@@ -14,6 +16,17 @@ from lidar_mcp.ydlidar_driver import (
     scan_once,
     stream_stop,
 )
+
+logger = logging.getLogger(__name__)
+
+# Keep references to scheduled shutdown tasks so the event loop does not GC them.
+_shutdown_tasks: set = set()
+
+
+def _error_response(operation: str, exc: BaseException) -> dict[str, Any]:
+    """Shared error shape with auto-logged traceback (fleet Pattern 3)."""
+    logger.exception("lidar %s failed", operation)
+    return {"success": False, "message": f"{operation} failed: {exc}", "data": {}}
 
 
 def _get_port() -> str:
@@ -74,12 +87,16 @@ async def lidar_scan(
             result = probe_port(resolved_port)
             return result
         except Exception as e:
-            return {"success": False, "message": f"Status check failed: {e}", "data": {}}
+            return _error_response("status", e)
 
     if operation == "scan":
         if not resolved_port:
-            return {"success": False, "message": "No LiDAR port set. Use operation='ports' to find it "
-                                                  "or set LIDAR_PORT env var.", "data": {}}
+            return {
+                "success": False,
+                "message": "No LiDAR port set. Use operation='ports' to find it "
+                "or set LIDAR_PORT env var.",
+                "data": {},
+            }
         try:
             baud = _get_baud() or None
             ser = connect(resolved_port, baud=baud)
@@ -89,7 +106,7 @@ async def lidar_scan(
                 return {
                     "success": True,
                     "message": f"Scan complete: {result.point_count} points "
-                               f"({len(valid)} valid) in {result.duration_ms:.0f} ms",
+                    f"({len(valid)} valid) in {result.duration_ms:.0f} ms",
                     "data": {
                         "point_count": result.point_count,
                         "valid_count": len(valid),
@@ -110,19 +127,56 @@ async def lidar_scan(
                 stream_stop(ser)
                 ser.close()
         except Exception as e:
-            return {"success": False, "message": f"Scan failed: {e}", "data": {}}
+            return _error_response("scan", e)
 
     if operation == "stream_start":
-        return {"success": False, "message": "Streaming via stdio MCP is not recommended. "
-                                              "Use scan (single capture) or connect via HTTP SSE "
-                                              "for persistent stream access.", "data": {}}
+        return {
+            "success": False,
+            "message": "Streaming via stdio MCP is not recommended. "
+            "Use scan (single capture) or connect via HTTP SSE "
+            "for persistent stream access.",
+            "data": {},
+        }
 
     return {
         "success": False,
         "message": f"Unknown operation: {operation}",
-        "data": {"valid_operations": ["status", "scan", "stream_start", "stream_read",
-                                       "stream_stop", "ports"]},
+        "data": {
+            "valid_operations": [
+                "status",
+                "scan",
+                "stream_start",
+                "stream_read",
+                "stream_stop",
+                "ports",
+            ]
+        },
     }
+
+
+async def lidar_shutdown(reason: str = "operator requested shutdown") -> dict[str, Any]:
+    """Gracefully shut down the lidar-mcp server process.
+
+    Schedules an orderly exit after a short delay so in-flight responses can
+    flush. The owning process (uvicorn daemon or stdio client) reaps it.
+
+    ## Return Format
+    {"success": bool, "message": str, "reason": str}
+
+    ## Examples
+    lidar_shutdown()
+    lidar_shutdown(reason="robot packed up for the night")
+    """
+
+    async def _schedule_exit() -> None:
+        await asyncio.sleep(0.5)
+        os._exit(0)
+
+    logger.warning("Shutdown requested via lidar_shutdown: %s", reason)
+    task = asyncio.create_task(_schedule_exit())
+    _shutdown_tasks.add(task)
+    task.add_done_callback(_shutdown_tasks.discard)
+    return {"success": True, "message": "Shutdown scheduled", "reason": reason}
 
 
 async def show_lidar_health_card(ctx: Context = None) -> Any:
@@ -141,7 +195,7 @@ async def show_lidar_health_card(ctx: Context = None) -> Any:
         from prefab_ui import PrefabApp
         from prefab_ui.components import Div, Heading, Text
 
-        app = PrefabApp(title="YDLIDAR — No Port")
+        app = PrefabApp(title="YDLIDAR - No Port")
         Heading("No LiDAR configured")
         Div()
         Text(f"Set LIDAR_PORT env var. Detected serial ports: {len(ports)}")
@@ -174,8 +228,10 @@ async def show_lidar_health_card(ctx: Context = None) -> Any:
             Row(label="Duration", value=f"{scan.duration_ms:.0f} ms")
             Row(label="Port", value=port)
 
-            text = (f"LiDAR scan: {scan.point_count} points ({len(valid)} valid), "
-                    f"range {min_dist:.0f}–{max_dist:.0f} mm on {port}")
+            text = (
+                f"LiDAR scan: {scan.point_count} points ({len(valid)} valid), "
+                f"range {min_dist:.0f}-{max_dist:.0f} mm on {port}"
+            )
             return {"content": text, "structured_content": app}
         finally:
             stream_stop(ser)
@@ -184,7 +240,7 @@ async def show_lidar_health_card(ctx: Context = None) -> Any:
         from prefab_ui import PrefabApp
         from prefab_ui.components import Div, Text
 
-        app = PrefabApp(title="YDLIDAR — Error")
+        app = PrefabApp(title="YDLIDAR - Error")
         app.add(Div())
         app.add(Text(str(e)))
         return {"content": f"LiDAR error: {e}", "structured_content": app}

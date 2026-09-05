@@ -38,6 +38,7 @@ BAUD_SERIES = 230400
 
 # -- Data models --
 
+
 @dataclass
 class LidarDeviceInfo:
     model: int = 0
@@ -49,10 +50,22 @@ class LidarDeviceInfo:
     @property
     def model_name(self) -> str:
         names = {
-            1: "X2", 2: "X4", 3: "X1", 4: "G1",
-            5: "G4", 6: "S2", 7: "S4", 8: "S2B", 9: "S4B",
-            10: "T1", 11: "G1", 12: "G4", 13: "G6",
-            14: "TX8", 15: "TX20", 16: "G6",
+            1: "X2",
+            2: "X4",
+            3: "X1",
+            4: "G1",
+            5: "G4",
+            6: "S2",
+            7: "S4",
+            8: "S2B",
+            9: "S4B",
+            10: "T1",
+            11: "G1",
+            12: "G4",
+            13: "G6",
+            14: "TX8",
+            15: "TX20",
+            16: "G6",
         }
         return names.get(self.model, f"Unknown({self.model})")
 
@@ -86,8 +99,22 @@ class ScanResult:
 # -- CRC16-Modbus --
 
 _CRC16_TABLE = [
-    0x0000, 0xCC01, 0xD801, 0x1400, 0xF001, 0x3C00, 0x2800, 0xE401,
-    0xA001, 0x6C00, 0x7800, 0xB401, 0x5000, 0x9C01, 0x8801, 0x4400,
+    0x0000,
+    0xCC01,
+    0xD801,
+    0x1400,
+    0xF001,
+    0x3C00,
+    0x2800,
+    0xE401,
+    0xA001,
+    0x6C00,
+    0x7800,
+    0xB401,
+    0x5000,
+    0x9C01,
+    0x8801,
+    0x4400,
 ]
 
 
@@ -101,12 +128,12 @@ def _crc16(data: bytes) -> int:
 
 # -- Serial I/O helpers --
 
+
 def _read_strict(ser: serial.Serial, n: int) -> bytes:
     data = ser.read(n)
     if len(data) < n:
         raise ConnectionError(
-            f"Short read: wanted {n} bytes, got {len(data)}. "
-            f"Check LiDAR connection and baud rate."
+            f"Short read: wanted {n} bytes, got {len(data)}. Check LiDAR connection and baud rate."
         )
     return data
 
@@ -146,8 +173,10 @@ def list_ports() -> list[dict[str, str]]:
         desc = (p.description or "").lower()
         if "cp210" in desc or "ch340" in desc or "silicon" in desc or "usb serial" in desc:
             candidates.append({"port": p.device, "description": p.description, "vid_pid": p.hwid})
-    return candidates or [{"port": p.device, "description": p.description, "vid_pid": p.hwid}
-                         for p in serial.tools.list_ports.comports()]
+    return candidates or [
+        {"port": p.device, "description": p.description, "vid_pid": p.hwid}
+        for p in serial.tools.list_ports.comports()
+    ]
 
 
 def probe_port(port: str, baud: int = BAUD_X4) -> dict[str, Any]:
@@ -189,9 +218,13 @@ def probe_port(port: str, baud: int = BAUD_X4) -> dict[str, Any]:
                 "error": f"Cannot open port: {e}",
             }
 
-    return {"success": False, "port": port, "error": "No YDLIDAR detected on this port",
-            "hint": "Verify: (1) LiDAR is plugged in, (2) correct port, "
-                    "(3) no other process claims the serial device"}
+    return {
+        "success": False,
+        "port": port,
+        "error": "No YDLIDAR detected on this port",
+        "hint": "Verify: (1) LiDAR is plugged in, (2) correct port, "
+        "(3) no other process claims the serial device",
+    }
 
 
 def connect(port: str, baud: int | None = None) -> serial.Serial:
@@ -208,19 +241,28 @@ def connect(port: str, baud: int | None = None) -> serial.Serial:
     for test_baud in [BAUD_X4, BAUD_X2, BAUD_G4, BAUD_SERIES]:
         try:
             ser = serial.Serial(port, test_baud, timeout=1)
+        except serial.SerialException:
+            continue
+        try:
             ser.flushInput()
             ser.flushOutput()
             _send_cmd(ser, CMD_STOP)
             import time
+
             time.sleep(0.1)
             _get_device_info(ser)
             return ser
         except (ConnectionError, serial.SerialException):
-            ser.close()
+            try:
+                ser.close()
+            except serial.SerialException:
+                pass
             continue
 
-    raise ConnectionError(f"Could not connect to YDLIDAR on {port} at any baud rate "
-                          f"(tried {BAUD_X2}, {BAUD_X4}, {BAUD_G4}, {BAUD_SERIES})")
+    raise ConnectionError(
+        f"Could not connect to YDLIDAR on {port} at any baud rate "
+        f"(tried {BAUD_X2}, {BAUD_X4}, {BAUD_G4}, {BAUD_SERIES})"
+    )
 
 
 def _get_device_info(ser: serial.Serial) -> LidarDeviceInfo:
@@ -236,7 +278,7 @@ def _get_device_info(ser: serial.Serial) -> LidarDeviceInfo:
     fm_minor = data[1]
     fm_major = data[2]
     hw = data[3]
-    serial_bytes = data[4:4+16] if len(data) >= 20 else data[4:]
+    serial_bytes = data[4 : 4 + 16] if len(data) >= 20 else data[4:]
     serial_str = serial_bytes.rstrip(b"\x00").decode("ascii", errors="replace")
 
     return LidarDeviceInfo(model, fm_minor, fm_major, hw, serial_str)
@@ -260,6 +302,7 @@ def scan_once(ser: serial.Serial, timeout_s: float = 2.0) -> ScanResult:
     (detected by the sync flag on each point).
     """
     import time
+
     ser.timeout = max(0.1, timeout_s / 10)
 
     _send_cmd(ser, CMD_STOP)
@@ -312,6 +355,7 @@ def stream_start(ser: serial.Serial) -> None:
     """Start continuous scan streaming."""
     _send_cmd(ser, CMD_STOP)
     import time
+
     time.sleep(0.05)
     ser.flushInput()
     _send_cmd(ser, CMD_SCAN)
