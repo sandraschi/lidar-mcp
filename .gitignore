@@ -2,8 +2,15 @@ __pycache__/
 *.pyc
 .venv/
 venv/
-uv.lock
 node_modules/
 dist/
 *.egg-info/
 data/*.json
+.coverage
+.env
+*.mcpb
+*.bak
+*.bak.*
+reports/
+native/target/
+native/gen/

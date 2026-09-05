@@ -6,9 +6,13 @@ default: serve
 serve:
     uv run python -m lidar_mcp.main
 
-# Run in HTTP/SSE mode on port 11074
+# Run in HTTP/SSE mode on port 11075
 serve-http:
-    $env:MCP_PORT = "11074"; $env:MCP_HOST = "127.0.0.1"; uv run python -m lidar_mcp.main
+    $env:MCP_PORT = "11075"; $env:MCP_HOST = "127.0.0.1"; uv run python -m lidar_mcp.main
+
+# Run tests (hardware-mocked, no LiDAR required)
+test:
+    uv run pytest tests/ -q
 
 # Verify server imports and tool registration
 check:

@@ -1,7 +1,7 @@
 param([switch]$Headless, [switch]$NoBrowser)
 $ErrorActionPreference = "Stop"
 $ScriptRoot = Split-Path -Parent $PSCommandPath
-$Port = 11074
+$Port = 11075
 
 Get-NetTCPConnection -LocalPort $Port -ErrorAction SilentlyContinue |
     ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }
