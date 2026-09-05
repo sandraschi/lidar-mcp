@@ -1,0 +1,1 @@
+{"hooks": {"SessionStart": [{"type": "text", "text": "## lidar-mcp\nYDLIDAR USB LiDAR (X2/X4/G1/G4/S series) on serial LIDAR_PORT. Before starting work: lidar_scan(operation=\"ports\") to find the sensor, lidar_scan(operation=\"scan\") for a 360-degree sweep. At end of work: ruff check + pytest, SSE default port 11075."}]}}

@@ -1,0 +1,1 @@
+{"description": "YDLIDAR USB LiDAR MCP server - session context injection", "hooks": "../hooks/hooks.json", "name": "lidar-mcp", "version": "0.2.0"}
