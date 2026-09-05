@@ -1,0 +1,1 @@
+{"$schema": "https://docs.renovatebot.com/renovate-schema.json", "extends": ["config:recommended"], "packageRules": [{"description": "Delay unstable supply-chain takeovers", "matchUpdateTypes": ["minor", "patch", "pin", "digest"], "stabilityDays": 3}], "prConcurrentLimit": 3, "schedule": ["before 6am on Monday"]}

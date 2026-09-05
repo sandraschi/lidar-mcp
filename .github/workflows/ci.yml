@@ -1,0 +1,20 @@
+name: ci
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  check:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - name: Lint
+        run: uv run ruff check src/
+      - name: Format
+        run: uv run ruff format src/ --check
+      - name: Tests
+        run: uv run pytest tests/ -q
