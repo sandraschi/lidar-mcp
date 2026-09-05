@@ -12,7 +12,8 @@ MCP server for YDLIDAR USB LiDAR sensors (X2, X4, G1, G4, S2, S4, S2B, S4B).
 3. Run `lidar_scan(operation="scan")` for a single 360-degree sweep
 
 ## Tools
-- `lidar_scan` — portmanteau with operations: status, scan, ports, stream_start, stream_stop
+- `lidar_scan` — portmanteau: status, scan, ports, stream_start/stop,
+  save, scans, map (SVG polar plot / occupancy grid), diff (per-sector change)
 - `show_lidar_health_card` — rich Prefab card with point cloud summary
 - `lidar_shutdown` — graceful self-termination (fleet shutdown contract)
 

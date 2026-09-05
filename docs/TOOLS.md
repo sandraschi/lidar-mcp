@@ -78,3 +78,26 @@ lidar_shutdown(reason="robot packed up for the night")
 
 Returns `{"success": true, "message": "Shutdown scheduled", "reason": ...}`.
 Annotated DESTRUCTIVE (readOnlyHint false).
+
+---
+
+## Map experiments — save / scans / map / diff
+
+Persisted scans live in `data/scans/scan-YYYYMMDD-HHMMSS.json`
+(`LIDAR_DATA_DIR` overrides the location, e.g. in tests).
+
+```
+lidar_scan(operation="save", note="door open")   # live scan + persist, returns scan_id
+lidar_scan(operation="scans")                    # list saved scans (id, time, counts, note)
+lidar_scan(operation="map", source="live", format="svg")
+lidar_scan(operation="map", source="scan-20260906-120000", format="both", grid_size=100)
+lidar_scan(operation="diff", scan_a="...", scan_b="...", tolerance_mm=150)
+```
+
+- **map**: `source="live"` scans now, or pass a saved id. `format` is
+  `svg` (polar plot, 0 deg up, closest return circled red), `grid`
+  (top-down occupancy grid, `grid_size` 8–200, `range_max_mm=0` auto-scales),
+  or `both`.
+- **diff**: per-sector minimum-range comparison (`sector_deg` default 5,
+  `tolerance_mm` default 150 guards noise). Reports changed/gained/lost
+  sectors sorted by delta — door opened, furniture moved, person walked by.

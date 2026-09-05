@@ -25,6 +25,10 @@ directly.
 | ports | — | List serial ports, auto-detect LiDAR candidates |
 | status | port | Device info, firmware, health (temp, error codes) |
 | scan | port, timeout_s | Single 360-degree point cloud |
+| save | port, timeout_s, note | Live scan persisted to data/scans/ (returns scan_id) |
+| scans | — | List persisted scans (id, time, counts, note) |
+| map | source, format, grid_size, range_max_mm | Polar SVG and/or occupancy grid, live or saved |
+| diff | scan_a, scan_b, sector_deg, tolerance_mm | Per-sector range change between two scans |
 
 ### show_lidar_health_card
 
