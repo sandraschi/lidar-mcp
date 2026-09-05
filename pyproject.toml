@@ -1,6 +1,6 @@
 [project]
 name = "lidar-mcp"
-version = "0.2.0"
+version = "0.3.0"
 description = "MCP server for YDLIDAR USB LiDAR sensors (X2/X4/G1/G4/S series) — scan, stream, status"
 authors = [{ name = "Sandra Schipal", email = "sandraschipal@gmail.com" }]
 requires-python = ">=3.12"

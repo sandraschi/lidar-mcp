@@ -3,6 +3,14 @@
 All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.3.0] - 2026-09-06
+
+### Added
+- Map-experiment operations on `lidar_scan`: `save` (persist with note),
+  `scans` (list), `map` (polar SVG + occupancy grid, live or saved id),
+  `diff` (per-sector change with noise tolerance)
+- 8 new mocked tests (30 total, ~79% coverage)
+
 ## [0.2.0] - 2026-09-06
 
 ### Fixed

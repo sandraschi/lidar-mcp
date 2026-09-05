@@ -6,7 +6,7 @@
   "status": "beta",
   "framework": "FastMCP 3.4+",
   "tools": 3,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "transport": ["stdio", "sse"],
   "categories": ["hardware", "robotics", "sensors"],
   "keywords": ["lidar", "ydlidar", "sensor", "robotics", "slam", "scanning", "fastmcp"],

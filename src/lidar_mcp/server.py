@@ -18,7 +18,7 @@ _DIALOGIC_SCHEMA: dict = {
 mcp = FastMCP(
     "lidar-mcp",
     instructions="YDLIDAR USB LiDAR control - scan, stream, status, health",
-    version="0.2.0",
+    version="0.3.0",
 )
 
 mcp.tool(annotations=_READ_ONLY, output_schema=_DIALOGIC_SCHEMA)(lidar_scan)
