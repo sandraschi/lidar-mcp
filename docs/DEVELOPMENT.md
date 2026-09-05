@@ -26,7 +26,7 @@ uv sync
 
 ```bash
 just serve       # Run in stdio mode
-just serve-http  # Run in SSE/HTTP mode on port 11074
+just serve-http  # Run in SSE/HTTP mode on port 11075
 just check       # Verify imports and tool registration
 ```
 

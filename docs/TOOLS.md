@@ -63,3 +63,18 @@ show_lidar_health_card()
 ```
 
 Displays: total points, valid count, min/max distance, scan duration.
+
+---
+
+## lidar_shutdown — Self-Termination
+
+Gracefully shuts down the server process (fleet self-termination contract).
+Schedules `os._exit(0)` after 0.5 s so the in-flight response flushes.
+
+```
+lidar_shutdown()
+lidar_shutdown(reason="robot packed up for the night")
+```
+
+Returns `{"success": true, "message": "Shutdown scheduled", "reason": ...}`.
+Annotated DESTRUCTIVE (readOnlyHint false).

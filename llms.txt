@@ -14,6 +14,7 @@ MCP server for YDLIDAR USB LiDAR sensors (X2, X4, G1, G4, S2, S4, S2B, S4B).
 ## Tools
 - `lidar_scan` — portmanteau with operations: status, scan, ports, stream_start, stream_stop
 - `show_lidar_health_card` — rich Prefab card with point cloud summary
+- `lidar_shutdown` — graceful self-termination (fleet shutdown contract)
 
 ## Env vars
 - `LIDAR_PORT` — serial port (e.g. COM3, /dev/ttyUSB0)

@@ -30,18 +30,23 @@ directly.
 
 Rich Prefab UI card with point count, valid/invalid ratio, range.
 
+### lidar_shutdown
+
+Graceful self-termination (fleet contract): schedules `os._exit(0)` after
+0.5 s so the in-flight response flushes. `lidar_shutdown(reason="...")`.
+
 ## Configuration
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | LIDAR_PORT | — | Serial port (COM3, /dev/ttyUSB0). **Required.** |
 | LIDAR_BAUD | auto | Override baud rate. Auto-detected. |
-| MCP_PORT | — | SSE mode port (11074). Omit for stdio. |
+| MCP_PORT | — | SSE mode port (11075). Omit for stdio. |
 
 ## Transports
 
 - **stdio**: `uv run python -m lidar_mcp.main`
-- **SSE**: `$env:MCP_PORT=11074; uv run python -m lidar_mcp.main`
+- **SSE**: `$env:MCP_PORT=11075; uv run python -m lidar_mcp.main`
 
 ## Dependencies
 
