@@ -29,7 +29,7 @@ jobs:
         run: bun run check
       - name: Web lint
         working-directory: webapp
-        run: bunx @biomejs/biome check src/
+        run: bun run biome:ci
       - name: Web build
         working-directory: webapp
         run: bun run build
