@@ -20,10 +20,17 @@ export default function Tools() {
     <div data-testid="tools-page" className="space-y-4">
       <h1 className="text-xl font-semibold">Tools — live from the MCP server</h1>
       {tools.loading && <div className="text-sm text-zinc-300">Eliciting tools…</div>}
-      {tools.error && <div className="rounded border border-red-800 bg-red-950 p-3 text-sm">Failed: {tools.error}</div>}
+      {tools.error && (
+        <div className="rounded border border-red-800 bg-red-950 p-3 text-sm">
+          Failed: {tools.error}
+        </div>
+      )}
       {(tools.data ?? []).map((t) => (
         <div key={t.name} className="rounded border border-zinc-800 bg-zinc-900 p-3">
-          <button onClick={() => setOpen((o) => (o === t.name ? null : t.name))} className="flex w-full items-center justify-between text-left">
+          <button
+            onClick={() => setOpen((o) => (o === t.name ? null : t.name))}
+            className="flex w-full items-center justify-between text-left"
+          >
             <span className="font-mono text-cyan-200">{t.name}</span>
             <span className="text-sm text-zinc-400">
               {t.portmanteau ? "portmanteau" : "solo"} · {t.parameters.length} params
@@ -56,7 +63,9 @@ export default function Tools() {
               </div>
               <details>
                 <summary className="cursor-pointer text-zinc-400">Full docstring</summary>
-                <pre className="mt-1 overflow-x-auto rounded bg-zinc-950 p-2 text-sm">{t.docstring}</pre>
+                <pre className="mt-1 overflow-x-auto rounded bg-zinc-950 p-2 text-sm">
+                  {t.docstring}
+                </pre>
               </details>
             </div>
           )}
