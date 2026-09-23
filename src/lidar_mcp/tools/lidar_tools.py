@@ -215,7 +215,7 @@ def _sector_minima(points: list[dict[str, Any]], sector_deg: float) -> list[floa
 
 async def lidar_scan(
     operation: str,
-    ctx: Context = None,
+    ctx: Context | None = None,
     port: str = "",
     timeout_s: float = 3.0,
     source: str = "live",
@@ -510,7 +510,7 @@ async def lidar_shutdown(reason: str = "operator requested shutdown") -> dict[st
     return {"success": True, "message": "Shutdown scheduled", "reason": reason}
 
 
-async def show_lidar_health_card(ctx: Context = None) -> Any:
+async def show_lidar_health_card(ctx: Context | None = None) -> Any:
     """Show a rich Prefab card with LiDAR status and scan data.
 
     ## Return Format
@@ -526,10 +526,15 @@ async def show_lidar_health_card(ctx: Context = None) -> Any:
         from prefab_ui import PrefabApp
         from prefab_ui.components import Div, Heading, Text
 
-        app = PrefabApp(title="YDLIDAR - No Port")
-        Heading("No LiDAR configured")
-        Div()
-        Text(f"Set LIDAR_PORT env var. Detected serial ports: {len(ports)}")
+        app = PrefabApp(
+            title="YDLIDAR - No Port",
+            view=Div(
+                children=[
+                    Heading(content="No LiDAR configured"),
+                    Text(f"Set LIDAR_PORT env var. Detected serial ports: {len(ports)}"),
+                ]
+            ),
+        )
         return {
             "content": "Set LIDAR_PORT env var to use the LiDAR health card.",
             "structured_content": app,
@@ -540,7 +545,7 @@ async def show_lidar_health_card(ctx: Context = None) -> Any:
         ser = connect(port, baud=baud)
         try:
             from prefab_ui import PrefabApp
-            from prefab_ui.components import Badge, Div, Heading, Row
+            from prefab_ui.components import Badge, Div, Heading, Text
 
             scan = scan_once(ser, timeout_s=2.0)
             valid = [p for p in scan.points if p.is_valid]
@@ -548,16 +553,20 @@ async def show_lidar_health_card(ctx: Context = None) -> Any:
             min_dist = min(dists) if dists else 0
             max_dist = max(dists) if dists else 0
 
-            app = PrefabApp(title="YDLIDAR LiDAR")
-            Heading("Scan Summary")
-            Div()
-            Badge(f"{scan.point_count} points", color="blue")
-            Badge(f"{len(valid)} valid", color="green")
-            Div()
-            Row(label="Min distance", value=f"{min_dist:.0f} mm")
-            Row(label="Max distance", value=f"{max_dist:.0f} mm")
-            Row(label="Duration", value=f"{scan.duration_ms:.0f} ms")
-            Row(label="Port", value=port)
+            app = PrefabApp(
+                title="YDLIDAR LiDAR",
+                view=Div(
+                    children=[
+                        Heading(content="Scan Summary"),
+                        Badge(f"{scan.point_count} points", color="blue"),
+                        Badge(f"{len(valid)} valid", color="green"),
+                        Text(f"Min distance: {min_dist:.0f} mm"),
+                        Text(f"Max distance: {max_dist:.0f} mm"),
+                        Text(f"Duration: {scan.duration_ms:.0f} ms"),
+                        Text(f"Port: {port}"),
+                    ]
+                ),
+            )
 
             text = (
                 f"LiDAR scan: {scan.point_count} points ({len(valid)} valid), "
@@ -571,7 +580,8 @@ async def show_lidar_health_card(ctx: Context = None) -> Any:
         from prefab_ui import PrefabApp
         from prefab_ui.components import Div, Text
 
-        app = PrefabApp(title="YDLIDAR - Error")
-        app.add(Div())
-        app.add(Text(str(e)))
+        app = PrefabApp(
+            title="YDLIDAR - Error",
+            view=Div(children=[Text(f"LiDAR error: {e}")]),
+        )
         return {"content": f"LiDAR error: {e}", "structured_content": app}

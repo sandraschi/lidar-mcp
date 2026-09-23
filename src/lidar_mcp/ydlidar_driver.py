@@ -188,8 +188,8 @@ def probe_port(port: str, baud: int = BAUD_X4) -> dict[str, Any]:
     for test_baud in [BAUD_X4, BAUD_X2, BAUD_G4, BAUD_SERIES]:
         try:
             with serial.Serial(port, test_baud, timeout=1) as ser:
-                ser.flushInput()
-                ser.flushOutput()
+                ser.reset_input_buffer()
+                ser.reset_output_buffer()
                 try:
                     info = _get_device_info(ser)
                     health = _get_health(ser)
@@ -234,8 +234,8 @@ def connect(port: str, baud: int | None = None) -> serial.Serial:
     """
     if baud is not None:
         ser = serial.Serial(port, baud, timeout=1)
-        ser.flushInput()
-        ser.flushOutput()
+        ser.reset_input_buffer()
+        ser.reset_output_buffer()
         return ser
 
     for test_baud in [BAUD_X4, BAUD_X2, BAUD_G4, BAUD_SERIES]:
@@ -244,8 +244,8 @@ def connect(port: str, baud: int | None = None) -> serial.Serial:
         except serial.SerialException:
             continue
         try:
-            ser.flushInput()
-            ser.flushOutput()
+            ser.reset_input_buffer()
+            ser.reset_output_buffer()
             _send_cmd(ser, CMD_STOP)
             import time
 
@@ -307,7 +307,7 @@ def scan_once(ser: serial.Serial, timeout_s: float = 2.0) -> ScanResult:
 
     _send_cmd(ser, CMD_STOP)
     time.sleep(0.05)
-    ser.flushInput()
+    ser.reset_input_buffer()
 
     _send_cmd(ser, CMD_SCAN)
     length, resp_type, crc = _read_descriptor(ser)
@@ -357,7 +357,7 @@ def stream_start(ser: serial.Serial) -> None:
     import time
 
     time.sleep(0.05)
-    ser.flushInput()
+    ser.reset_input_buffer()
     _send_cmd(ser, CMD_SCAN)
     length, resp_type, crc = _read_descriptor(ser)
     if resp_type != RESP_TYPE_SCAN:

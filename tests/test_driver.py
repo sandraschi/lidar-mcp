@@ -96,10 +96,10 @@ class _CannedSerial:
         chunk, self._stream = self._stream[:n], self._stream[n:]
         return chunk
 
-    def flushInput(self):
+    def reset_input_buffer(self):
         pass
 
-    def flushOutput(self):
+    def reset_output_buffer(self):
         pass
 
     def close(self):
