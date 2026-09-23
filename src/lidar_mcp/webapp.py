@@ -240,6 +240,17 @@ async def api_scans() -> dict[str, Any]:
     return await lidar_tools.lidar_scan(operation="scans")
 
 
+@app.get("/api/scans/{scan_id}")
+async def api_scan_doc(scan_id: str) -> dict[str, Any]:
+    """Raw saved scan document (points included) for client-side stitching."""
+    try:
+        doc = lidar_tools._load_scan(scan_id)
+        return {"success": True, "message": f"Loaded {scan_id}", "data": doc}
+    except Exception as exc:
+        logger.warning("GET /api/scans/%s failed: %s", scan_id, exc)
+        return {"success": False, "message": f"unknown scan id: {scan_id}", "data": {}}
+
+
 class MapBody(BaseModel):
     source: str = "live"
     format: str = "both"

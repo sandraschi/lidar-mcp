@@ -145,3 +145,22 @@ def test_save_without_port_fails_soft(monkeypatch):
     with _client() as client:
         resp = client.post("/api/scans/save", json={"note": "t"})
     assert resp.json()["success"] is False
+
+
+def test_scan_doc_unknown_id():
+    with _client() as client:
+        resp = client.get("/api/scans/scan-nope")
+    assert resp.json()["success"] is False
+
+
+def test_scan_doc_roundtrip(tmp_path, monkeypatch):
+    import json as _json
+
+    d = tmp_path / "scans"
+    d.mkdir()
+    doc = {"scan_id": "scan-x", "points": []}
+    (d / "scan-x.json").write_text(_json.dumps(doc))
+    monkeypatch.setenv("LIDAR_DATA_DIR", str(d))
+    with _client() as client:
+        resp = client.get("/api/scans/scan-x")
+    assert resp.json()["data"]["scan_id"] == "scan-x"
