@@ -101,3 +101,19 @@ lidar_scan(operation="diff", scan_a="...", scan_b="...", tolerance_mm=150)
 - **diff**: per-sector minimum-range comparison (`sector_deg` default 5,
   `tolerance_mm` default 150 guards noise). Reports changed/gained/lost
   sectors sorted by delta — door opened, furniture moved, person walked by.
+
+---
+
+## Web REST (FastAPI 11217, Swagger at /docs)
+
+Same capabilities over HTTP for the SPA (and curl, and the Pi browser):
+
+| Endpoint | Maps to |
+|----------|---------|
+| `GET /api/health`, `/api/status`, `/api/dashboard` | liveness + KPIs |
+| `GET /api/ports`, `GET /api/tools`, `GET /api/skills`, `GET /api/logs` | introspection |
+| `POST /api/scan`, `/api/scans/save`, `GET /api/scans`, `GET /api/scans/{id}` | capture + persist |
+| `POST /api/map`, `POST /api/diff` | SVG/grid rendering, sector diff |
+| `GET /api/llm/*`, `POST /api/llm/chat(+/stream)`, `/api/settings/llm` | LLM proxy (keys stay server-side) |
+| `GET /api/companions`, `GET /api/companions/{id}` | robot probes (fail-soft) |
+| `POST /api/shutdown` | orderly exit (fleet launcher contract) |

@@ -20,6 +20,18 @@
 
 Not yet available. Coming in a future release.
 
+## Option C1 — Web Console (no Claude needed)
+
+1. Clone + deps + webapp deps:
+```bash
+git clone https://github.com/sandraschi/lidar-mcp
+cd lidar-mcp
+uv sync
+cd webapp && bun install && bun run build && cd ..
+```
+2. Run `.\start.ps1` — API on 11217, SPA served, browser opens.
+3. Set `LIDAR_PORT` in `.env` (copy `.env.example`) or pick the port in Console.
+
 ## Option C — Manual Configuration
 
 1. Clone:

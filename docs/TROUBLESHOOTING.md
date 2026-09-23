@@ -27,3 +27,17 @@
 ## Server doesn't appear in Claude Desktop
 **Cause**: Config JSON malformed, or uv not in PATH
 **Fix**: Validate JSON. Run `uv --version` from terminal.
+
+## Web UI shows "Backend unreachable"
+**Cause**: API not running, or browser on another host without LAN route
+**Fix**: Run `start.ps1` (or `just serve-web`) and wait for the readiness poll.
+From another machine use the Pi's Tailscale/LAN IP — CORS allows LAN + 100.x.
+
+## Chat says "No local LLM detected"
+**Cause**: No Ollama/LM Studio/vLLM running
+**Fix**: Install Ollama (Settings page one-click, or winget), pull a model,
+or paste a cloud key in Settings. Keys live server-side only.
+
+## Companion "unreachable" on Raspbot Link
+**Cause**: yahboom-mcp backend (10892) not running
+**Fix**: Start yahboom-mcp. The page degrades — LiDAR pages keep working.

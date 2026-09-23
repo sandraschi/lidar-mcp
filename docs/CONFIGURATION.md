@@ -7,6 +7,10 @@
 | `LIDAR_PORT` | — | Serial port of the LiDAR (e.g. COM3, /dev/ttyUSB0). **Required.** |
 | `LIDAR_BAUD` | auto | Override baud rate. Auto-detected if omitted. Common values: 115200 (X2), 230400 (X4), 500000 (G4). |
 | `MCP_PORT` | — | Set to `11075` for SSE/HTTP mode (omit for stdio) |
+| `LIDAR_API_PORT` | 11217 | Web backend (FastAPI REST + serves the SPA) |
+| `LIDAR_WEB_PORT` | 11218 | Frontend dev server (informational; the API reads it for CORS origins) |
+| `LIDAR_DATA_DIR` | data/scans | Persisted-scan location (tests override with tmp dirs) |
+| `LOG_LEVEL` | INFO | Backend log level |
 
 ## Setting Variables
 
