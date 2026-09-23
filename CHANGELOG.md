@@ -3,6 +3,18 @@
 All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.4.0] - 2026-09-24
+
+### Added (webapp)
+- FastAPI web backend on 11217 (frontend dev 11218): scan/map/diff/status,
+  dashboard, tools/skills/logs, LLM proxy (local discovery + cloud keys),
+  robot companion probes (yahboom live, norirobotics planned), POST /shutdown
+- SOTA SPA: Dashboard, Console, Scope, Mapper (pose-tagged stitching, not SLAM),
+  Raspbot Link (obstacle guard + honest E-STOP), Diff Lab, PTZ 3D capture,
+  Scan Library, Tools, Skills, Apps, Chat, API Docs, Settings, Help, Logs
+- `start.ps1` runs the web stack (zombie-clear, TCP readiness poll, browser);
+  `just serve-web/web-install/web-build/gates` recipes
+
 ## [Unreleased]
 
 ### Fixed
