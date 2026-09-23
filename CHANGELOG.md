@@ -3,6 +3,23 @@
 All notable changes to this project are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Fixed
+- `show_lidar_health_card` rebuilt against the installed prefab-ui API
+  (`PrefabApp(view=...)`, `Heading(content=...)`, `Text` rows): the old
+  `Row(label=, value=)` kwargs and `app.add()` calls raised at runtime, and
+  the no-port branch returned an empty card
+- `ydlidar_driver` uses `reset_input_buffer/output_buffer` instead of the
+  deprecated `flushInput/flushOutput` aliases (pyserial 3.5+ canonical names)
+- `lidar_scan` / `show_lidar_health_card` type `ctx` as `Context | None`
+
+### Added
+- `pyright` + `pre-commit` in dev deps; `.git/hooks/pre-commit` materialised;
+  CI runs a `pyright src/` typecheck step (0 errors)
+- Session context injection for OpenCode (`.opencode/skills/lidar-mcp/SKILL.md`)
+  and Antigravity (`.agents/skills/config.json`)
+
 ## [0.3.0] - 2026-09-06
 
 ### Added
