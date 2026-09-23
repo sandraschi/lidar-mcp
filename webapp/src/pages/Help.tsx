@@ -56,7 +56,7 @@ const TABS: { id: string; title: string; body: string[] }[] = [
 
 export default function Help() {
   const [tab, setTab] = useState("start");
-  const active = TABS.find((t) => t.id === tab)!;
+  const active = TABS.find((t) => t.id === tab) ?? TABS[0];
   return (
     <div data-testid="help-page" className="space-y-4">
       <h1 className="text-xl font-semibold">Help</h1>
@@ -80,7 +80,8 @@ export default function Help() {
         </ul>
       </div>
       <div className="text-sm text-zinc-400">
-        Full docs: README · INSTALL · docs/CONFIGURATION · docs/TOOLS · docs/TROUBLESHOOTING · docs/ONBOARDING · llms-full.txt
+        Full docs: README · INSTALL · docs/CONFIGURATION · docs/TOOLS · docs/TROUBLESHOOTING ·
+        docs/ONBOARDING · llms-full.txt
       </div>
     </div>
   );
