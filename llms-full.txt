@@ -46,11 +46,28 @@ Graceful self-termination (fleet contract): schedules `os._exit(0)` after
 | LIDAR_PORT | — | Serial port (COM3, /dev/ttyUSB0). **Required.** |
 | LIDAR_BAUD | auto | Override baud rate. Auto-detected. |
 | MCP_PORT | — | SSE mode port (11075). Omit for stdio. |
+| LIDAR_API_PORT | 11217 | Web backend (FastAPI REST + serves the SPA). |
+| LIDAR_WEB_PORT | 11218 | Frontend dev server (CORS origin reference). |
 
 ## Transports
 
 - **stdio**: `uv run python -m lidar_mcp.main`
 - **SSE**: `$env:MCP_PORT=11075; uv run python -m lidar_mcp.main`
+- **Web**: `.\start.ps1` (API 11217 + SPA) or `uv run python -m lidar_mcp.webapp`
+
+## Web REST (11217, Swagger at /docs)
+
+POST /api/scan, /api/scans/save, GET /api/scans + /api/scans/{id},
+POST /api/map (svg/grid/both), POST /api/diff, GET /api/ports,
+GET /api/dashboard|tools|skills|logs, GET /api/llm/* + POST /api/llm/chat,
+GET /api/companions (yahboom live, norirobotics planned), POST /api/shutdown.
+
+## Webapp pages (11218 dev, served by the API in prod)
+
+Dashboard, Console, Scope, Mapper (pose-tagged stitching, not SLAM),
+Raspbot Link (obstacle guard + E-STOP halts local loops; motion authority
+stays in yahboom-mcp), Diff Lab, PTZ 3D, Scan Library, Tools, Skills, Apps,
+Chat (backend LLM proxy only), API Docs, Settings, Help, Logs.
 
 ## Dependencies
 
