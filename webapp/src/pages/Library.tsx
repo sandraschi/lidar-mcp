@@ -43,6 +43,7 @@ export default function Library() {
           {(scans.data ?? []).map((s) => (
             <button
               key={s.scan_id}
+              data-testid={`scan-item-${s.scan_id}`}
               onClick={() => showMap(s.scan_id)}
               className="block w-full rounded border border-zinc-800 bg-zinc-900 p-3 text-left text-sm hover:border-cyan-700"
             >
@@ -55,7 +56,7 @@ export default function Library() {
           ))}
         </div>
         {preview && (
-          <div className="flex-1">
+          <div data-testid="library-preview" className="flex-1">
             <div className="mb-2 text-sm text-zinc-300">
               {previewId} — pick two scans and open{" "}
               <Link to="/diff" className="text-cyan-300">

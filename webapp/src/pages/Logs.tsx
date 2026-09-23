@@ -40,12 +40,14 @@ export default function Logs() {
       <div className="flex items-center gap-3">
         <h1 className="text-xl font-semibold">Logs — backend ring buffer</h1>
         <input
+          data-testid="logs-filter"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           placeholder="filter… (Ctrl+L)"
           className="rounded px-2 py-1 text-sm"
         />
         <button
+          data-testid="logs-export"
           onClick={() => {
             const blob = new Blob(
               [shown.map((l) => `${l.ts} ${l.level} ${l.logger} ${l.message}`).join("\n")],

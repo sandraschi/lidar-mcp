@@ -64,6 +64,7 @@ export default function Help() {
         {TABS.map((t) => (
           <button
             key={t.id}
+            data-testid={`help-tab-${t.id}`}
             onClick={() => setTab(t.id)}
             className={`rounded px-3 py-1 text-sm ${t.id === tab ? "bg-cyan-700" : "bg-zinc-800 hover:bg-zinc-700"}`}
           >
@@ -71,7 +72,7 @@ export default function Help() {
           </button>
         ))}
       </div>
-      <div className="rounded border border-zinc-800 bg-zinc-900 p-4">
+      <div data-testid="help-content" className="rounded border border-zinc-800 bg-zinc-900 p-4">
         <h2 className="font-semibold text-cyan-200">{active.title}</h2>
         <ul className="mt-2 space-y-1 text-sm text-zinc-300">
           {active.body.map((line, i) => (
