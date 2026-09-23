@@ -20,3 +20,16 @@ jobs:
         run: uv run pyright src/
       - name: Tests
         run: uv run pytest tests/ -q
+      - uses: oven-sh/setup-bun@v2
+      - name: Web install
+        working-directory: webapp
+        run: bun install --frozen-lockfile
+      - name: Web typecheck
+        working-directory: webapp
+        run: bun run check
+      - name: Web lint
+        working-directory: webapp
+        run: bunx @biomejs/biome check src/
+      - name: Web build
+        working-directory: webapp
+        run: bun run build
