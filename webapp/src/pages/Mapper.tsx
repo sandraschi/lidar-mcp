@@ -89,43 +89,108 @@ export default function Mapper() {
     }
     ctx.fillStyle = "#71717a";
     ctx.font = "12px sans-serif";
-    ctx.fillText(`${pts.length} stitched points · span ${span.toFixed(1)} m`, 12, canvas.height - 10);
+    ctx.fillText(
+      `${pts.length} stitched points · span ${span.toFixed(1)} m`,
+      12,
+      canvas.height - 10,
+    );
   };
 
   return (
     <div data-testid="mapper-page" className="space-y-4">
       <h1 className="text-xl font-semibold">Mapper — pose-tagged stitching (not SLAM)</h1>
       <p className="max-w-3xl text-sm text-zinc-300">
-        Drive the sensor (or the Raspbot) to several poses, capture a scan at each, then stitch. Poses come from
-        you or robot odometry — the page trusts them blindly. No loop closure, no filter: drift in, drift out.
+        Drive the sensor (or the Raspbot) to several poses, capture a scan at each, then stitch.
+        Poses come from you or robot odometry — the page trusts them blindly. No loop closure, no
+        filter: drift in, drift out.
       </p>
       {error && <div className="rounded border border-red-800 bg-red-950 p-3 text-sm">{error}</div>}
       <div className="space-y-2">
         {poses.map((p, i) => (
-          <div key={i} className="flex flex-wrap items-center gap-2 rounded border border-zinc-800 bg-zinc-900 p-2 text-sm">
+          <div
+            key={i}
+            className="flex flex-wrap items-center gap-2 rounded border border-zinc-800 bg-zinc-900 p-2 text-sm"
+          >
             <span className="text-zinc-400">#{i}</span>
-            <label className="text-zinc-300">x(m)<input data-testid={`pose-x-${i}`} type="number" step="0.1" value={p.x} onChange={(e) => setPose(i, { x: Number(e.target.value) })} className="ml-1 w-20 px-1" /></label>
-            <label className="text-zinc-300">y(m)<input data-testid={`pose-y-${i}`} type="number" step="0.1" value={p.y} onChange={(e) => setPose(i, { y: Number(e.target.value) })} className="ml-1 w-20 px-1" /></label>
-            <label className="text-zinc-300">θ°<input data-testid={`pose-t-${i}`} type="number" step="5" value={p.thetaDeg} onChange={(e) => setPose(i, { thetaDeg: Number(e.target.value) })} className="ml-1 w-20 px-1" /></label>
-            <input value={p.note} onChange={(e) => setPose(i, { note: e.target.value })} placeholder="note" className="px-2 py-0.5 text-sm" />
-            <button onClick={() => capture(i)} disabled={busy} className="rounded bg-zinc-800 px-2 py-0.5 hover:bg-zinc-700 disabled:opacity-50">
+            <label className="text-zinc-300">
+              x(m)
+              <input
+                data-testid={`pose-x-${i}`}
+                type="number"
+                step="0.1"
+                value={p.x}
+                onChange={(e) => setPose(i, { x: Number(e.target.value) })}
+                className="ml-1 w-20 px-1"
+              />
+            </label>
+            <label className="text-zinc-300">
+              y(m)
+              <input
+                data-testid={`pose-y-${i}`}
+                type="number"
+                step="0.1"
+                value={p.y}
+                onChange={(e) => setPose(i, { y: Number(e.target.value) })}
+                className="ml-1 w-20 px-1"
+              />
+            </label>
+            <label className="text-zinc-300">
+              θ°
+              <input
+                data-testid={`pose-t-${i}`}
+                type="number"
+                step="5"
+                value={p.thetaDeg}
+                onChange={(e) => setPose(i, { thetaDeg: Number(e.target.value) })}
+                className="ml-1 w-20 px-1"
+              />
+            </label>
+            <input
+              value={p.note}
+              onChange={(e) => setPose(i, { note: e.target.value })}
+              placeholder="note"
+              className="px-2 py-0.5 text-sm"
+            />
+            <button
+              onClick={() => capture(i)}
+              disabled={busy}
+              className="rounded bg-zinc-800 px-2 py-0.5 hover:bg-zinc-700 disabled:opacity-50"
+            >
               {p.scanId ? "Re-capture" : "Capture"}
             </button>
             {p.scanId && <span className="font-mono text-sm text-cyan-200">{p.scanId}</span>}
           </div>
         ))}
         <div className="flex gap-2">
-          <button onClick={() => setPoses((ps) => [...ps, { x: 0, y: 0, thetaDeg: 0, scanId: "", note: "" }])} className="rounded bg-zinc-800 px-3 py-1 text-sm hover:bg-zinc-700">
+          <button
+            onClick={() =>
+              setPoses((ps) => [...ps, { x: 0, y: 0, thetaDeg: 0, scanId: "", note: "" }])
+            }
+            className="rounded bg-zinc-800 px-3 py-1 text-sm hover:bg-zinc-700"
+          >
             Add pose
           </button>
-          <button data-testid="mapper-build" onClick={build} disabled={busy} className="rounded bg-cyan-700 px-3 py-1 text-sm hover:bg-cyan-600 disabled:opacity-50">
+          <button
+            data-testid="mapper-build"
+            onClick={build}
+            disabled={busy}
+            className="rounded bg-cyan-700 px-3 py-1 text-sm hover:bg-cyan-600 disabled:opacity-50"
+          >
             Build map
           </button>
         </div>
       </div>
-      <canvas ref={canvasRef} width={640} height={480} className="rounded border border-zinc-800" data-testid="mapper-canvas" />
+      <canvas
+        ref={canvasRef}
+        width={640}
+        height={480}
+        className="rounded border border-zinc-800"
+        data-testid="mapper-canvas"
+      />
       {built && built.length === 0 && (
-        <div className="text-sm text-zinc-300">No stitched points yet — capture at least one pose, then build.</div>
+        <div className="text-sm text-zinc-300">
+          No stitched points yet — capture at least one pose, then build.
+        </div>
       )}
     </div>
   );
@@ -139,6 +204,9 @@ export function transformPoints(points: ScanPoint[], pose: Pose): { x: number; y
       const a = (p.angle_deg * Math.PI) / 180;
       const lx = (p.distance_mm / 1000) * Math.sin(a);
       const ly = (p.distance_mm / 1000) * Math.cos(a);
-      return { x: pose.x + lx * Math.cos(t) - ly * Math.sin(t), y: pose.y + lx * Math.sin(t) + ly * Math.cos(t) };
+      return {
+        x: pose.x + lx * Math.cos(t) - ly * Math.sin(t),
+        y: pose.y + lx * Math.sin(t) + ly * Math.cos(t),
+      };
     });
 }

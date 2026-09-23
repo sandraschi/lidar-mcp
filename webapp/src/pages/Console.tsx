@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { api, type ScanData } from "../lib/api";
 import PolarPlot from "../components/PolarPlot";
+import { api, type ScanData } from "../lib/api";
 
 function useAsync<T>(fn: () => Promise<T>, deps: unknown[] = []) {
   const [data, setData] = useState<T | null>(null);
@@ -78,7 +78,11 @@ export default function Console() {
     <div data-testid="console-page" className="space-y-4">
       <h1 className="text-xl font-semibold">Console — is my module alive?</h1>
       {ports.loading && <div className="text-sm text-zinc-300">Probing serial ports…</div>}
-      {ports.error && <div className="rounded border border-red-800 bg-red-950 p-3 text-sm">Ports failed: {ports.error}</div>}
+      {ports.error && (
+        <div className="rounded border border-red-800 bg-red-950 p-3 text-sm">
+          Ports failed: {ports.error}
+        </div>
+      )}
       <div className="flex flex-wrap items-center gap-3">
         <label className="text-sm text-zinc-300" htmlFor="port-select">
           Serial port
@@ -119,8 +123,15 @@ export default function Console() {
           <PolarPlot points={scan.points} rangeMaxMm={rangeMax} />
           <div className="space-y-2 text-sm">
             <div className="rounded border border-zinc-800 bg-zinc-900 p-3">
-              <div className="text-zinc-300">Points: {scan.point_count} ({valid.length} valid)</div>
-              <div className="text-zinc-300">Range: {dists.length ? `${Math.min(...dists).toFixed(0)}–${Math.max(...dists).toFixed(0)} mm` : "—"}</div>
+              <div className="text-zinc-300">
+                Points: {scan.point_count} ({valid.length} valid)
+              </div>
+              <div className="text-zinc-300">
+                Range:{" "}
+                {dists.length
+                  ? `${Math.min(...dists).toFixed(0)}–${Math.max(...dists).toFixed(0)} mm`
+                  : "—"}
+              </div>
               <div className="text-zinc-300">Duration: {scan.duration_ms.toFixed(0)} ms</div>
             </div>
             <div className="flex gap-2">
@@ -130,7 +141,11 @@ export default function Console() {
                 placeholder="note for save…"
                 className="rounded px-2 py-1 text-sm"
               />
-              <button onClick={saveScan} disabled={busy || !note} className="rounded bg-zinc-800 px-3 py-1 text-sm hover:bg-zinc-700 disabled:opacity-50">
+              <button
+                onClick={saveScan}
+                disabled={busy || !note}
+                className="rounded bg-zinc-800 px-3 py-1 text-sm hover:bg-zinc-700 disabled:opacity-50"
+              >
                 Save scan
               </button>
             </div>
@@ -138,11 +153,14 @@ export default function Console() {
         </div>
       )}
       {status && (
-        <pre className="overflow-x-auto rounded border border-zinc-800 bg-zinc-900 p-3 text-sm">{status}</pre>
+        <pre className="overflow-x-auto rounded border border-zinc-800 bg-zinc-900 p-3 text-sm">
+          {status}
+        </pre>
       )}
       {!scan && !status && !busy && (
         <div className="rounded border border-zinc-800 p-6 text-sm text-zinc-300">
-          Pick a port (or leave auto), hit <b>Status</b> for firmware/health, <b>Scan once</b> for a 360° sweep.
+          Pick a port (or leave auto), hit <b>Status</b> for firmware/health, <b>Scan once</b> for a
+          360° sweep.
         </div>
       )}
     </div>
