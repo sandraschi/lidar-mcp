@@ -29,18 +29,21 @@ export default function ApiDocs() {
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-xl font-semibold">API Docs — live backend reference</h1>
         <button
+          data-testid="docs-swagger"
           onClick={() => setView("swagger")}
           className={`rounded px-3 py-1 text-sm ${view === "swagger" ? "bg-cyan-700" : "bg-zinc-800 hover:bg-zinc-700"}`}
         >
           Swagger
         </button>
         <button
+          data-testid="docs-redoc"
           onClick={() => setView("redoc")}
           className={`rounded px-3 py-1 text-sm ${view === "redoc" ? "bg-cyan-700" : "bg-zinc-800 hover:bg-zinc-700"}`}
         >
           ReDoc
         </button>
         <a
+          data-testid="docs-open-browser"
           href="http://127.0.0.1:11217/docs"
           target="_blank"
           rel="noreferrer"

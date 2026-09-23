@@ -26,7 +26,11 @@ export default function Tools() {
         </div>
       )}
       {(tools.data ?? []).map((t) => (
-        <div key={t.name} className="rounded border border-zinc-800 bg-zinc-900 p-3">
+        <div
+          key={t.name}
+          data-testid={`tool-item-${t.name}`}
+          className="rounded border border-zinc-800 bg-zinc-900 p-3"
+        >
           <button
             onClick={() => setOpen((o) => (o === t.name ? null : t.name))}
             className="flex w-full items-center justify-between text-left"

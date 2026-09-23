@@ -13,7 +13,11 @@ export default function Apps() {
       {companions.loading && <div className="text-sm text-zinc-300">Loading companions…</div>}
       <div className="grid gap-3 md:grid-cols-2">
         {(companions.data ?? []).map((c) => (
-          <div key={c.id} className="rounded border border-zinc-800 bg-zinc-900 p-4">
+          <div
+            key={c.id}
+            data-testid={`app-card-${c.id}`}
+            className="rounded border border-zinc-800 bg-zinc-900 p-4"
+          >
             <div className="flex items-center justify-between">
               <b>{c.label}</b>
               <span
