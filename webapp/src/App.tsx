@@ -1,21 +1,21 @@
 import { HashRouter, Route, Routes } from "react-router-dom";
 import AppLayout from "./components/AppLayout";
-import Dashboard from "./pages/Dashboard";
-import Console from "./pages/Console";
-import Scope from "./pages/Scope";
-import Mapper from "./pages/Mapper";
-import DiffLab from "./pages/DiffLab";
-import Ptz3D from "./pages/Ptz3D";
-import Library from "./pages/Library";
-import Raspbots from "./pages/Raspbots";
-import Tools from "./pages/Tools";
-import Skills from "./pages/Skills";
+import ApiDocs from "./pages/ApiDocs";
 import Apps from "./pages/Apps";
 import Chat from "./pages/Chat";
-import ApiDocs from "./pages/ApiDocs";
-import Settings from "./pages/Settings";
+import Console from "./pages/Console";
+import Dashboard from "./pages/Dashboard";
+import DiffLab from "./pages/DiffLab";
 import Help from "./pages/Help";
+import Library from "./pages/Library";
 import Logs from "./pages/Logs";
+import Mapper from "./pages/Mapper";
+import Ptz3D from "./pages/Ptz3D";
+import Raspbots from "./pages/Raspbots";
+import Scope from "./pages/Scope";
+import Settings from "./pages/Settings";
+import Skills from "./pages/Skills";
+import Tools from "./pages/Tools";
 
 export default function App() {
   return (

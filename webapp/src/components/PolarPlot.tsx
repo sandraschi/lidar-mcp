@@ -2,7 +2,13 @@ import { useEffect, useRef } from "react";
 import type { ScanPoint } from "../lib/api";
 
 // Canvas polar plot: 0 deg up, clockwise. Cyan returns, red closest ring.
-export default function PolarPlot({ points, rangeMaxMm }: { points: ScanPoint[]; rangeMaxMm: number }) {
+export default function PolarPlot({
+  points,
+  rangeMaxMm,
+}: {
+  points: ScanPoint[];
+  rangeMaxMm: number;
+}) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = ref.current;
@@ -56,8 +62,20 @@ export default function PolarPlot({ points, rangeMaxMm }: { points: ScanPoint[];
       ctx.stroke();
       ctx.fillStyle = "#f43f5e";
       ctx.font = "13px sans-serif";
-      ctx.fillText(`closest: ${closest.distance_mm.toFixed(0)} mm @ ${closest.angle_deg.toFixed(1)} deg`, 12, size - 12);
+      ctx.fillText(
+        `closest: ${closest.distance_mm.toFixed(0)} mm @ ${closest.angle_deg.toFixed(1)} deg`,
+        12,
+        size - 12,
+      );
     }
   }, [points, rangeMaxMm]);
-  return <canvas ref={ref} width={520} height={520} className="rounded border border-zinc-800" data-testid="polar-plot" />;
+  return (
+    <canvas
+      ref={ref}
+      width={520}
+      height={520}
+      className="rounded border border-zinc-800"
+      data-testid="polar-plot"
+    />
+  );
 }

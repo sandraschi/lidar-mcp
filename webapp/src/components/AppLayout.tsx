@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
 import {
   Activity,
   BookOpen,
@@ -20,46 +18,133 @@ import {
   Terminal,
   Wrench,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { waitForBackend } from "../lib/api";
 
-const NAV: { group: string; items: { to: string; label: string; icon: React.ReactNode; testid: string }[] }[] = [
+const NAV: {
+  group: string;
+  items: { to: string; label: string; icon: React.ReactNode; testid: string }[];
+}[] = [
   {
     group: "Overview",
     items: [
-      { to: "/", label: "Dashboard", icon: <LayoutDashboard size={18} />, testid: "nav-dashboard" },
-      { to: "/console", label: "Console", icon: <Terminal size={18} />, testid: "nav-console" },
+      {
+        to: "/",
+        label: "Dashboard",
+        icon: <LayoutDashboard size={18} />,
+        testid: "nav-dashboard",
+      },
+      {
+        to: "/console",
+        label: "Console",
+        icon: <Terminal size={18} />,
+        testid: "nav-console",
+      },
     ],
   },
   {
     group: "Mapping",
     items: [
-      { to: "/scope", label: "Scope", icon: <Radar size={18} />, testid: "nav-scope" },
-      { to: "/mapper", label: "Mapper", icon: <Shapes size={18} />, testid: "nav-mapper" },
-      { to: "/diff", label: "Diff Lab", icon: <FlaskConical size={18} />, testid: "nav-diff" },
-      { to: "/ptz3d", label: "PTZ 3D", icon: <Camera size={18} />, testid: "nav-ptz3d" },
-      { to: "/library", label: "Scan Library", icon: <BookOpen size={18} />, testid: "nav-library" },
+      {
+        to: "/scope",
+        label: "Scope",
+        icon: <Radar size={18} />,
+        testid: "nav-scope",
+      },
+      {
+        to: "/mapper",
+        label: "Mapper",
+        icon: <Shapes size={18} />,
+        testid: "nav-mapper",
+      },
+      {
+        to: "/diff",
+        label: "Diff Lab",
+        icon: <FlaskConical size={18} />,
+        testid: "nav-diff",
+      },
+      {
+        to: "/ptz3d",
+        label: "PTZ 3D",
+        icon: <Camera size={18} />,
+        testid: "nav-ptz3d",
+      },
+      {
+        to: "/library",
+        label: "Scan Library",
+        icon: <BookOpen size={18} />,
+        testid: "nav-library",
+      },
     ],
   },
   {
     group: "Robot",
-    items: [{ to: "/raspbots", label: "Raspbot Link", icon: <Bot size={18} />, testid: "nav-raspbots" }],
+    items: [
+      {
+        to: "/raspbots",
+        label: "Raspbot Link",
+        icon: <Bot size={18} />,
+        testid: "nav-raspbots",
+      },
+    ],
   },
   {
     group: "Fleet",
     items: [
-      { to: "/tools", label: "Tools", icon: <Wrench size={18} />, testid: "nav-tools" },
-      { to: "/skills", label: "Skills", icon: <Brain size={18} />, testid: "nav-skills" },
-      { to: "/apps", label: "Apps", icon: <Shapes size={18} />, testid: "nav-apps" },
-      { to: "/chat", label: "Chat", icon: <Activity size={18} />, testid: "nav-chat" },
-      { to: "/api-docs", label: "API Docs", icon: <ScrollText size={18} />, testid: "nav-api-docs" },
+      {
+        to: "/tools",
+        label: "Tools",
+        icon: <Wrench size={18} />,
+        testid: "nav-tools",
+      },
+      {
+        to: "/skills",
+        label: "Skills",
+        icon: <Brain size={18} />,
+        testid: "nav-skills",
+      },
+      {
+        to: "/apps",
+        label: "Apps",
+        icon: <Shapes size={18} />,
+        testid: "nav-apps",
+      },
+      {
+        to: "/chat",
+        label: "Chat",
+        icon: <Activity size={18} />,
+        testid: "nav-chat",
+      },
+      {
+        to: "/api-docs",
+        label: "API Docs",
+        icon: <ScrollText size={18} />,
+        testid: "nav-api-docs",
+      },
     ],
   },
   {
     group: "System",
     items: [
-      { to: "/settings", label: "Settings", icon: <Settings size={18} />, testid: "nav-settings" },
-      { to: "/help", label: "Help", icon: <LifeBuoy size={18} />, testid: "nav-help" },
-      { to: "/logs", label: "Logs", icon: <Cpu size={18} />, testid: "nav-logs" },
+      {
+        to: "/settings",
+        label: "Settings",
+        icon: <Settings size={18} />,
+        testid: "nav-settings",
+      },
+      {
+        to: "/help",
+        label: "Help",
+        icon: <LifeBuoy size={18} />,
+        testid: "nav-help",
+      },
+      {
+        to: "/logs",
+        label: "Logs",
+        icon: <Cpu size={18} />,
+        testid: "nav-logs",
+      },
     ],
   },
 ];
@@ -78,8 +163,15 @@ export function BackendDot({ testid = "backend-dot" }: { testid?: string }) {
   const color = ok === null ? "bg-zinc-500 animate-pulse" : ok ? "bg-emerald-400" : "bg-red-400";
   const label = ok === null ? "Probing…" : ok ? "Backend connected" : "Backend unreachable";
   return (
-    <span data-testid={testid} title={label} className="flex items-center gap-2 text-sm text-zinc-300">
-      <span data-testid="backend-dot" className={`inline-block h-2.5 w-2.5 rounded-full ${color}`} />
+    <span
+      data-testid={testid}
+      title={label}
+      className="flex items-center gap-2 text-sm text-zinc-300"
+    >
+      <span
+        data-testid="backend-dot"
+        className={`inline-block h-2.5 w-2.5 rounded-full ${color}`}
+      />
       {label}
     </span>
   );
@@ -105,7 +197,9 @@ export default function AppLayout() {
 
   return (
     <div data-testid="dashboard" className="flex h-full bg-zinc-950 text-zinc-100">
-      <aside className={`${collapsed ? "w-16" : "w-60"} border-r border-zinc-800 bg-zinc-900/60 backdrop-blur transition-all`}>
+      <aside
+        className={`${collapsed ? "w-16" : "w-60"} border-r border-zinc-800 bg-zinc-900/60 backdrop-blur transition-all`}
+      >
         <div className="flex items-center justify-between border-b border-zinc-800 p-3">
           {!collapsed && (
             <Link to="/" className="flex items-center gap-2 font-semibold">
@@ -125,7 +219,11 @@ export default function AppLayout() {
         <nav className="overflow-y-auto p-2">
           {NAV.map((g) => (
             <div key={g.group} className="mb-3">
-              {!collapsed && <div className="px-2 pb-1 text-sm uppercase tracking-wide text-zinc-400">{g.group}</div>}
+              {!collapsed && (
+                <div className="px-2 pb-1 text-sm uppercase tracking-wide text-zinc-400">
+                  {g.group}
+                </div>
+              )}
               {g.items.map((it) => {
                 const active = loc.pathname === it.to;
                 return (
@@ -155,10 +253,18 @@ export default function AppLayout() {
           <div className="text-sm text-zinc-300">YDLIDAR console · 11217/11218</div>
           <div className="flex items-center gap-4">
             <BackendDot testid="backend-dot-top" />
-            <Link to="/help" className="text-sm text-zinc-300 hover:text-cyan-200" title="Help (Ctrl+H)">
+            <Link
+              to="/help"
+              className="text-sm text-zinc-300 hover:text-cyan-200"
+              title="Help (Ctrl+H)"
+            >
               ?
             </Link>
-            <Link to="/logs" className="text-sm text-zinc-300 hover:text-cyan-200" title="Logs (Ctrl+L)">
+            <Link
+              to="/logs"
+              className="text-sm text-zinc-300 hover:text-cyan-200"
+              title="Logs (Ctrl+L)"
+            >
               Logs
             </Link>
           </div>
