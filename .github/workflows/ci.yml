@@ -16,5 +16,7 @@ jobs:
         run: uv run ruff check src/
       - name: Format
         run: uv run ruff format src/ --check
+      - name: Typecheck
+        run: uv run pyright src/
       - name: Tests
         run: uv run pytest tests/ -q

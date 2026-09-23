@@ -11,7 +11,14 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["ruff>=0.16.0,<0.17", "pytest>=8.0", "pytest-cov>=6.0", "pytest-asyncio>=0.24"]
+dev = [
+    "ruff>=0.16.0,<0.17",
+    "pytest>=8.0",
+    "pytest-cov>=6.0",
+    "pytest-asyncio>=0.24",
+    "pre-commit>=4.6.2",
+    "pyright>=1.1.414",
+]
 
 [project.scripts]
 lidar-mcp = "lidar_mcp.main:main"
