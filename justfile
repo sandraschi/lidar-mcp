@@ -48,7 +48,7 @@ web-build:
 
 # Full gates: python lint + types + tests, frontend types + lint
 gates:
-    uv run ruff check src/ tests/; uv run ruff format src/ tests/ --check; uv run pyright src/; uv run pytest tests/ -q; Push-Location webapp; bun run check; bunx @biomejs/biome check src/; Pop-Location
+    uv run ruff check src/ tests/; uv run ruff format src/ tests/ --check; uv run pyright src/; uv run pytest tests/ -q; Push-Location webapp; bun run check; bun run biome:ci; Pop-Location
 
 # Bootstrap: install dev deps + pre-commit hook
 bootstrap:
