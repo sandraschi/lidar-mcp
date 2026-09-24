@@ -69,10 +69,12 @@ export default function Mapper() {
     if (!pts.length) return;
     const xs = pts.map((p) => p.x);
     const ys = pts.map((p) => p.y);
-    const minX = Math.min(...xs);
-    const maxX = Math.max(...xs);
-    const minY = Math.min(...ys);
-    const maxY = Math.max(...ys);
+    // Stitched maps can carry tens of thousands of points across poses —
+    // spreading into Math.min/max(...) overflows the call stack, so reduce.
+    const minX = xs.reduce((a, b) => Math.min(a, b));
+    const maxX = xs.reduce((a, b) => Math.max(a, b));
+    const minY = ys.reduce((a, b) => Math.min(a, b));
+    const maxY = ys.reduce((a, b) => Math.max(a, b));
     const span = Math.max(maxX - minX, maxY - minY, 0.5);
     const scale = (Math.min(canvas.width, canvas.height) - 40) / span;
     ctx.fillStyle = "#22d3ee";

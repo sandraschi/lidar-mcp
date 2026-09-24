@@ -35,10 +35,12 @@ export default function Ptz3D() {
         const r = await api.saveScan(`ptz3d pan=${pan}`, 3.0);
         if (!r.success) throw new Error(r.message);
         const pts = (r.data.points ?? []).filter((p) => p.is_valid).map((p) => p.distance_mm);
+        // Real hardware scans can carry thousands of points — spreading into
+        // Math.min(...) overflows the call stack, so reduce instead.
         done.push({
           panDeg: pan,
           scanId: r.data.scan_id,
-          closestMm: pts.length ? Math.min(...pts) : null,
+          closestMm: pts.length ? pts.reduce((a, b) => Math.min(a, b)) : null,
         });
         setSlices([...done]);
       }

@@ -21,6 +21,7 @@ import {
 import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { waitForBackend } from "../lib/api";
+import ErrorBoundary from "./ErrorBoundary";
 
 const NAV: {
   group: string;
@@ -270,7 +271,9 @@ export default function AppLayout() {
           </div>
         </header>
         <main className="min-h-0 flex-1 overflow-y-auto p-4">
-          <Outlet />
+          <ErrorBoundary key={loc.pathname}>
+            <Outlet />
+          </ErrorBoundary>
         </main>
       </div>
     </div>

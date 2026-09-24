@@ -72,7 +72,11 @@ export default function Console() {
 
   const valid = scan?.points.filter((p) => p.is_valid) ?? [];
   const dists = valid.map((p) => p.distance_mm);
-  const rangeMax = dists.length ? Math.max(...dists) * 1.1 : 4000;
+  // Real hardware scans can carry thousands of points — spreading into
+  // Math.min/max(...) overflows the call stack, so reduce instead.
+  const minDist = dists.length ? dists.reduce((a, b) => Math.min(a, b)) : 0;
+  const maxDist = dists.length ? dists.reduce((a, b) => Math.max(a, b)) : 0;
+  const rangeMax = dists.length ? maxDist * 1.1 : 4000;
 
   return (
     <div data-testid="console-page" className="space-y-4">
@@ -127,10 +131,7 @@ export default function Console() {
                 Points: {scan.point_count} ({valid.length} valid)
               </div>
               <div className="text-zinc-300">
-                Range:{" "}
-                {dists.length
-                  ? `${Math.min(...dists).toFixed(0)}–${Math.max(...dists).toFixed(0)} mm`
-                  : "—"}
+                Range: {dists.length ? `${minDist.toFixed(0)}–${maxDist.toFixed(0)} mm` : "—"}
               </div>
               <div className="text-zinc-300">Duration: {scan.duration_ms.toFixed(0)} ms</div>
             </div>
