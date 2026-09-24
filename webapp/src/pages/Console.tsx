@@ -100,8 +100,8 @@ export default function Console() {
         >
           <option value="">auto (LIDAR_PORT)</option>
           {(ports.data ?? []).map((p) => (
-            <option key={p} value={p}>
-              {p}
+            <option key={p.port} value={p.port}>
+              {p.port} — {p.description}
             </option>
           ))}
         </select>

@@ -37,7 +37,8 @@ export const api = {
   status: () => fetch("/api/status").then((r) => r.json()),
   dashboard: () =>
     req<{ kpis: { name: string; value: string | number; hint: string }[] }>("/api/dashboard"),
-  ports: () => req<{ ports: string[] }>("/api/ports"),
+  ports: () =>
+    req<{ ports: { port: string; description: string; vid_pid: string }[] }>("/api/ports"),
   tools: () =>
     req<{
       tools: {
