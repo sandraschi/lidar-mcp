@@ -21,7 +21,7 @@ def test_status_shape():
         resp = client.get("/api/status")
     body = resp.json()
     assert body["tool_count"] == 3
-    assert body["ports"]["api"] == 11217
+    assert body["ports"]["api"] == 11228
 
 
 def test_dashboard_kpis():
