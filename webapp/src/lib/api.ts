@@ -1,4 +1,4 @@
-// Typed REST client for the lidar-mcp web backend (11217).
+// Typed REST client for the lidar-mcp web backend (11228).
 // Same-origin in prod (backend serves dist/), Vite-proxied in dev.
 // Chat NEVER touches providers directly — always POST /api/llm/chat.
 

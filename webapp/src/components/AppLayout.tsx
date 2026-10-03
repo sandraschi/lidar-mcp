@@ -251,7 +251,7 @@ export default function AppLayout() {
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900/60 px-4 py-2">
-          <div className="text-sm text-zinc-300">YDLIDAR console · 11217/11218</div>
+          <div className="text-sm text-zinc-300">YDLIDAR console · 11228/11227</div>
           <div className="flex items-center gap-4">
             <BackendDot testid="backend-dot-top" />
             <Link

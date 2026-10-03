@@ -44,7 +44,7 @@ export default function Apps() {
       </div>
       <div className="rounded border border-zinc-800 p-3 text-sm text-zinc-400">
         Fleet port registry: mcp-central-docs/operations/WEBAPP_PORTS.md — lidar-mcp: SSE 11075, API
-        11217, web 11218.
+        11228, web 11227.
       </div>
     </div>
   );

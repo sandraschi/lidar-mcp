@@ -44,7 +44,7 @@ export default function ApiDocs() {
         </button>
         <a
           data-testid="docs-open-browser"
-          href="http://127.0.0.1:11217/docs"
+          href="http://127.0.0.1:11228/docs"
           target="_blank"
           rel="noreferrer"
           className="rounded bg-zinc-800 px-3 py-1 text-sm text-cyan-200 hover:bg-zinc-700"

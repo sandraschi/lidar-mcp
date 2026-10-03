@@ -27,7 +27,7 @@ const TABS: { id: string; title: string; body: string[] }[] = [
     title: "API & ports",
     body: [
       "MCP SSE 11075 (legacy) · stdio for Claude Desktop.",
-      "Web API 11217 · frontend dev 11218. Swagger at /docs.",
+      "Web API 11228 · frontend dev 11227. Swagger at /docs.",
       "Pi deploy: run the API on the Raspberry Pi, open the UI from your laptop over Tailscale/LAN.",
       "POST /api/shutdown schedules an orderly exit (fleet launcher contract).",
     ],
