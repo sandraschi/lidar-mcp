@@ -20,7 +20,7 @@ this repo. No ROS, no SDK, no account, no money beyond the hardware.
 ## Webapp path (no Claude needed)
 
 1. `cd webapp && bun install && bun run build && cd ..`
-2. `.\start.ps1` — API 11217 serves the SPA.
+2. `.\start.ps1` — API 11228 serves the SPA.
 3. If the UI says "Backend unreachable", the readiness poll failed: run
    `uv run python -m lidar_mcp.webapp` manually and read the error.
 
@@ -30,7 +30,7 @@ this repo. No ROS, no SDK, no account, no money beyond the hardware.
 2. `uv sync` (pure Python + pyserial — no compilation).
 3. Plug LiDAR into the Pi (`/dev/ttyUSB0` typically), set `LIDAR_PORT`.
 4. `uv run python -m lidar_mcp.webapp` (or wire an NSSM/systemd unit later).
-5. From your laptop: `http://<pi-tailscale-ip>:11217` (CORS allows LAN + 100.x).
+5. From your laptop: `http://<pi-tailscale-ip>:11228` (CORS allows LAN + 100.x).
 6. Raspbot Link page probes yahboom-mcp when the robot stack is up.
 
 ## Pitfalls

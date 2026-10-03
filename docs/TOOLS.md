@@ -104,7 +104,7 @@ lidar_scan(operation="diff", scan_a="...", scan_b="...", tolerance_mm=150)
 
 ---
 
-## Web REST (FastAPI 11217, Swagger at /docs)
+## Web REST (FastAPI 11228, Swagger at /docs)
 
 Same capabilities over HTTP for the SPA (and curl, and the Pi browser):
 

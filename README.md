@@ -46,13 +46,13 @@ add to `claude_desktop_config.json`, restart. See [INSTALL.md](INSTALL.md).
 ## Web Console (v0.4+)
 
 ```powershell
-.\start.ps1   # API 11217 + SPA, browser auto-opens
+.\start.ps1   # API 11228 + SPA, browser auto-opens
 ```
 
 Sixteen pages: Dashboard, Console (module smoke test), live Scope, Mapper
 (pose-tagged stitching), Raspbot Link (Yahboom companion + obstacle guard),
 Diff Lab, PTZ 3D capture, Scan Library, Tools, Skills, Apps, Chat, API Docs,
-Settings, Help, Logs. Swagger at `http://127.0.0.1:11217/docs`.
+Settings, Help, Logs. Swagger at `http://127.0.0.1:11228/docs`.
 
 ## What You Can Do
 

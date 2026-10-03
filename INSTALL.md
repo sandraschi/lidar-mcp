@@ -29,7 +29,7 @@ cd lidar-mcp
 uv sync
 cd webapp && bun install && bun run build && cd ..
 ```
-2. Run `.\start.ps1` — API on 11217, SPA served, browser opens.
+2. Run `.\start.ps1` — API on 11228, SPA served, browser opens.
 3. Set `LIDAR_PORT` in `.env` (copy `.env.example`) or pick the port in Console.
 
 ## Option C — Manual Configuration
