@@ -34,9 +34,9 @@ install:
 clean:
     Remove-Item -Recurse -Force __pycache__, .ruff_cache -ErrorAction SilentlyContinue
 
-# Run web backend (FastAPI on 11217, serves SPA when built)
+# Run web backend (FastAPI on 11228, serves SPA when built)
 serve-web:
-    $env:LIDAR_API_PORT = "11217"; uv run python -m lidar_mcp.webapp
+    $env:LIDAR_API_PORT = "11228"; uv run python -m lidar_mcp.webapp
 
 # Install webapp deps (bun, fleet standard)
 web-install:

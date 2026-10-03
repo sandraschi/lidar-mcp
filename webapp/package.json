@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --port 11218",
+    "dev": "vite --port 11227",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview --port 11218",
+    "preview": "vite preview --port 11227",
     "check": "tsc --noEmit",
     "biome:ci": "biome check src/"
   },

@@ -3,7 +3,7 @@
 Serves the SOTA webapp: LiDAR REST (scan/map/diff/status), LLM provider
 proxy (local discovery + cloud keys, keys never leave the server), robot
 companion probes (fail-soft), logs ring buffer, and the built SPA itself
-(``webapp/dist`` when present). Single process on LIDAR_API_PORT (11217).
+(``webapp/dist`` when present). Single process on LIDAR_API_PORT (11228).
 
 MCP serving is unchanged: stdio (Claude Desktop) and SSE (11075) via
 ``lidar_mcp.main``. This backend is REST-only — no ``mcp.http_app()``
@@ -33,8 +33,8 @@ from lidar_mcp.tools import lidar_tools
 
 logger = logging.getLogger(__name__)
 
-API_PORT = int(os.environ.get("LIDAR_API_PORT", "11217"))
-DEV_FRONTEND = int(os.environ.get("LIDAR_WEB_PORT", "11218"))
+API_PORT = int(os.environ.get("LIDAR_API_PORT", "11228"))
+DEV_FRONTEND = int(os.environ.get("LIDAR_WEB_PORT", "11227"))
 
 _STARTED = time.monotonic()
 
