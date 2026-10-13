@@ -192,6 +192,56 @@ async def api_tools() -> dict[str, Any]:
     return {"success": True, "message": f"{len(tools)} tools", "data": {"tools": tools}}
 
 
+@app.get("/api/capabilities")
+async def api_capabilities() -> dict[str, Any]:
+    """Capability introspection (WEBAPP_STANDARDS.md §1.4, mandatory shape)."""
+    from importlib.metadata import version as _pkg_version
+
+    tools = (await api_tools())["data"]["tools"]
+    portmanteau = [t["name"] for t in tools if t.get("portmanteau")]
+    atomic = [t["name"] for t in tools if not t.get("portmanteau")]
+    skills = (await api_skills())["data"]["skills"]
+    try:
+        from lidar_mcp.server import mcp as _mcp
+
+        prompt_names = [p.name for p in await _mcp.list_prompts()]
+        resource_uris = [str(r.uri) for r in await _mcp.list_resources()]
+    except Exception:
+        logger.warning("capabilities inventory fell back to static names")
+        prompt_names = ["room_scan_workflow"]
+        resource_uris = ["lidar://status"]
+    try:
+        fastmcp_ver = _pkg_version("fastmcp")
+    except Exception:
+        fastmcp_ver = "3.4+"
+    return {
+        "status": "ok",
+        "server": {"name": "lidar-mcp", "version": _version(), "fastmcp": fastmcp_ver},
+        "tool_surface": {
+            "total": len(tools),
+            "portmanteau_count": len(portmanteau),
+            "atomic_count": len(atomic),
+            "portmanteau_tools": portmanteau,
+            "atomic_tools": atomic,
+        },
+        "features": {
+            "sampling": False,
+            "agentic_workflows": True,
+            "prompts": bool(prompt_names),
+            "resources": bool(resource_uris),
+            "skills": bool(skills),
+        },
+        "inventory": {
+            "workflow_tools": ["lidar_scan"],
+            "prompt_names": prompt_names,
+            "resource_uris": resource_uris,
+            "skill_uris": [s["name"] for s in skills],
+        },
+        "runtime": {"transport": "dual", "surface_mode": "both"},
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    }
+
+
 @app.get("/api/skills")
 async def api_skills() -> dict[str, Any]:
     root = Path(__file__).resolve().parents[2]

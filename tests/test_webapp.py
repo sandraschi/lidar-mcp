@@ -164,3 +164,19 @@ def test_scan_doc_roundtrip(tmp_path, monkeypatch):
     with _client() as client:
         resp = client.get("/api/scans/scan-x")
     assert resp.json()["data"]["scan_id"] == "scan-x"
+
+
+def test_capabilities_standard_shape():
+    with _client() as client:
+        resp = client.get("/api/capabilities")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["status"] == "ok"
+    assert body["server"]["name"] == "lidar-mcp"
+    assert body["tool_surface"]["total"] == 3
+    assert "lidar_scan" in body["tool_surface"]["portmanteau_tools"]
+    assert body["features"]["prompts"] is True
+    assert body["features"]["resources"] is True
+    assert "room_scan_workflow" in body["inventory"]["prompt_names"]
+    assert "lidar://status" in body["inventory"]["resource_uris"]
+    assert body["runtime"]["transport"] == "dual"

@@ -7,3 +7,10 @@ from lidar_mcp.server import mcp
 async def test_server_registers_three_tools():
     tools = await mcp.list_tools()
     assert {t.name for t in tools} == {"lidar_scan", "show_lidar_health_card", "lidar_shutdown"}
+
+
+async def test_server_registers_prompt_and_resource():
+    prompts = await mcp.list_prompts()
+    assert "room_scan_workflow" in {p.name for p in prompts}
+    resources = await mcp.list_resources()
+    assert "lidar://status" in {str(r.uri) for r in resources}

@@ -81,6 +81,19 @@ Annotated DESTRUCTIVE (readOnlyHint false).
 
 ---
 
+## lidar://status — Resource + room_scan_workflow — Prompt
+
+- **Resource** `lidar://status`: live server status as JSON (`configured` flag,
+  ports, version — no secrets, no raw env values). Read it before scanning to
+  check `LIDAR_PORT` is set.
+- **Prompt** `room_scan_workflow(scenario="single"|"compare"|"map")`: numbered
+  tool plan for a room survey — ports → status → scan/save → map/diff narration.
+- The `.opencode/skills` directory is served over MCP via SkillsDirectoryProvider
+  (`skill://lidar-mcp/SKILL.md`) and over REST via `GET /api/skills` (Chat page
+  loads it skill-first).
+
+---
+
 ## Map experiments — save / scans / map / diff
 
 Persisted scans live in `data/scans/scan-YYYYMMDD-HHMMSS.json`
@@ -112,6 +125,7 @@ Same capabilities over HTTP for the SPA (and curl, and the Pi browser):
 |----------|---------|
 | `GET /api/health`, `/api/status`, `/api/dashboard` | liveness + KPIs |
 | `GET /api/ports`, `GET /api/tools`, `GET /api/skills`, `GET /api/logs` | introspection |
+| `GET /api/capabilities` | standard capability shape (tools, prompts, resources, skills) |
 | `POST /api/scan`, `/api/scans/save`, `GET /api/scans`, `GET /api/scans/{id}` | capture + persist |
 | `POST /api/map`, `POST /api/diff` | SVG/grid rendering, sector diff |
 | `GET /api/llm/*`, `POST /api/llm/chat(+/stream)`, `/api/settings/llm` | LLM proxy (keys stay server-side) |
