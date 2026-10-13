@@ -49,10 +49,10 @@ add to `claude_desktop_config.json`, restart. See [INSTALL.md](INSTALL.md).
 .\start.ps1   # API 11228 + SPA, browser auto-opens
 ```
 
-Sixteen pages: Dashboard, Console (module smoke test), live Scope, Mapper
-(pose-tagged stitching), Raspbot Link (Yahboom companion + obstacle guard),
-Diff Lab, PTZ 3D capture, Scan Library, Tools, Skills, Apps, Chat, API Docs,
-Settings, Help, Logs. Swagger at `http://127.0.0.1:11228/docs`.
+Seventeen pages: Dashboard, Console, Inbox (recent scans + warning/error feed),
+live Scope, Mapper (pose-tagged stitching), Raspbot Link (Yahboom companion +
+obstacle guard), Diff Lab, PTZ 3D capture, Scan Library, Tools, Skills, Apps,
+Chat, API Docs, Settings, Help, Logs. Swagger at `http://127.0.0.1:11228/docs`.
 
 ## What You Can Do
 

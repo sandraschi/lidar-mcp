@@ -17,6 +17,20 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- `GET /api/capabilities` (WEBAPP_STANDARDS §1.4 shape: server, tool_surface,
+  features, inventory, runtime, timestamp)
+- MCP `lidar://status` resource (port-configured flag, ports, version — no secrets)
+- MCP `room_scan_workflow` prompt (single / compare / map scenarios)
+- SkillsDirectoryProvider over `.opencode/skills` so the domain skill is served
+  over MCP, not only via `GET /api/skills`
+- Webapp Inbox page (recent scans + warning/error log feed, filter + count) and
+  Scan Library filter box with result count
+
+### Fixed
+- Web backend moved 11217/11218 → 11228/11227 on 2026-10-03 (11217/11218 collided
+  with raspberrypi-mcp); 0.4.0 entry below predates the move
+
 ### Fixed
 - `show_lidar_health_card` rebuilt against the installed prefab-ui API
   (`PrefabApp(view=...)`, `Heading(content=...)`, `Text` rows): the old

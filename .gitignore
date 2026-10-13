@@ -10,6 +10,7 @@ data/*.json
 .coverage
 .env
 *.mcpb
+mcpb/src/
 *.bak
 *.bak.*
 reports/
