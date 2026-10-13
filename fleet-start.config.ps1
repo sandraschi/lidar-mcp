@@ -11,6 +11,7 @@
         Kind          = 'uvicorn'
         UvicornTarget = 'lidar_mcp.webapp:app'
         SyncExtras    = @('dev')
+        SyncOnStart  = $true
         Env           = @{ LIDAR_API_PORT = '11228'; LIDAR_WEB_PORT = '11227' }
     }
     Frontend = @{
