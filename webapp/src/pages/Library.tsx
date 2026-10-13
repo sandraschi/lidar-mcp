@@ -6,6 +6,7 @@ import { useAsync } from "./Console";
 export default function Library() {
   const [preview, setPreview] = useState("");
   const [previewId, setPreviewId] = useState("");
+  const [query, setQuery] = useState("");
   const scans = useAsync(() => api.scans().then((r) => r.data.scans));
 
   const showMap = async (id: string) => {
@@ -20,9 +21,29 @@ export default function Library() {
     }
   };
 
+  const q = query.trim().toLowerCase();
+  const all = scans.data ?? [];
+  const shown = q
+    ? all.filter(
+        (s) => s.scan_id.toLowerCase().includes(q) || (s.note ?? "").toLowerCase().includes(q),
+      )
+    : all;
+
   return (
     <div data-testid="library-page" className="space-y-4">
       <h1 className="text-xl font-semibold">Scan Library — saved sweeps</h1>
+      <div className="flex items-center gap-3">
+        <input
+          data-testid="library-search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Filter by id or note…"
+          className="w-64 rounded bg-zinc-900 px-3 py-1.5 text-sm"
+        />
+        <span data-testid="library-count" className="text-sm text-zinc-400">
+          {shown.length} of {all.length} scans
+        </span>
+      </div>
       {scans.loading && <div className="text-sm text-zinc-300">Loading saved scans…</div>}
       {scans.error && (
         <div className="rounded border border-red-800 bg-red-950 p-3 text-sm">
@@ -38,9 +59,14 @@ export default function Library() {
           with a note.
         </div>
       )}
+      {all.length > 0 && shown.length === 0 && !scans.loading && (
+        <div className="rounded border border-zinc-800 p-6 text-sm text-zinc-300">
+          No scans match &ldquo;{query}&rdquo;. Clear the filter to see all {all.length}.
+        </div>
+      )}
       <div className="flex flex-wrap gap-4">
         <div className="min-w-72 flex-1 space-y-2">
-          {(scans.data ?? []).map((s) => (
+          {shown.map((s) => (
             <button
               key={s.scan_id}
               data-testid={`scan-item-${s.scan_id}`}

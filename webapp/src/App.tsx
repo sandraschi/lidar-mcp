@@ -7,6 +7,7 @@ import Console from "./pages/Console";
 import Dashboard from "./pages/Dashboard";
 import DiffLab from "./pages/DiffLab";
 import Help from "./pages/Help";
+import Inbox from "./pages/Inbox";
 import Library from "./pages/Library";
 import Logs from "./pages/Logs";
 import Mapper from "./pages/Mapper";
@@ -24,6 +25,7 @@ export default function App() {
         <Route element={<AppLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="console" element={<Console />} />
+          <Route path="inbox" element={<Inbox />} />
           <Route path="scope" element={<Scope />} />
           <Route path="mapper" element={<Mapper />} />
           <Route path="diff" element={<DiffLab />} />
