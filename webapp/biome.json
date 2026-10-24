@@ -1,31 +1,31 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.14/schema.json",
-  "formatter": {
-    "enabled": true,
-    "indentStyle": "space",
-    "indentWidth": 2,
-    "lineWidth": 100
-  },
-  "javascript": {
-    "formatter": {
-      "quoteStyle": "double",
-      "semicolons": "always"
-    }
-  },
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "preset": "recommended",
-      "suspicious": {
-        "noConsole": "error",
-        "noArrayIndexKey": "off"
-      },
-      "correctness": {
-        "useExhaustiveDependencies": "off"
-      },
-      "a11y": {
-        "preset": "none"
-      }
-    }
-  }
+	"$schema": "https://biomejs.dev/schemas/2.5.14/schema.json",
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "space",
+		"indentWidth": 2,
+		"lineWidth": 100
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "double",
+			"semicolons": "always"
+		}
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"preset": "recommended",
+			"suspicious": {
+				"noConsole": "error",
+				"noArrayIndexKey": "off"
+			},
+			"correctness": {
+				"useExhaustiveDependencies": "off"
+			},
+			"a11y": {
+				"preset": "none"
+			}
+		}
+	}
 }
